@@ -172,6 +172,11 @@ function preload()
 	WebcamView.preload();
 	Game.preload();
 	GuideCards.preload();
+	
+	ALL_STATES.forEach((s)=>
+	{
+		if(s.preload) s.preload();
+	});
 }
 
 var linkSpan;

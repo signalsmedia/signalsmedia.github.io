@@ -150,6 +150,11 @@ const GameAMenuState =
 	
 	///// STATE FUNCTIONS /////
 	
+	preload: function()
+	{
+		this.howToImage = loadImage('/assets/howtogameA.png');
+	},
+	
 	interceptSpace: function()
 	{
 		nextState(MainMenuState)
@@ -159,7 +164,7 @@ const GameAMenuState =
 	{
 		this.menu = new MenuBar(PI/2,
 		[
-			{img:loadImage("/assets/menus/shipgame/howtoplay.png"), back:color(32,86,43), degs:67.5, action: "Coming Soon..."},
+			{img:loadImage("/assets/menus/shipgame/howtoplay.png"), back:color(32,86,43), degs:67.5, action: {image:GameAMenuState.howToImage, origin:mainRegion.origin, size:mainRegion.size}},
 			{img:loadImage("/assets/menus/shipgame/l1.png"), back:color(88,88,88), degs:22.5, action: function(){nextState(GameState, 0)}},
 			{img:loadImage("/assets/menus/shipgame/l2.png"), back:color(80,80,80), degs:22.5, action: function(){nextState(GameState, 1)}},
 			{img:loadImage("/assets/menus/shipgame/l3.png"), back:color(73,73,73), degs:22.5, action: function(){nextState(GameState, 2)}},
@@ -173,6 +178,11 @@ const GameAMenuState =
 	updateDimensions: function()
 	{
 		if(this.menu) this.menu.updateDimensions();
+		// this.howToObj = 
+		// {
+			// image: GameAMenuState.howToImage,
+			// origin: 
+		// }
 	},
 	
 	//confirmSignalCallback: function(signal){},

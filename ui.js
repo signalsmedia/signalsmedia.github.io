@@ -14,6 +14,8 @@ var UI = (function() {
 	var messageEndCriteria;
 	var messageEndCallback;
 	
+	var imgMessage = false;
+	
 	return  { 
 		// public interface variables
 		textScale: 1,
@@ -149,9 +151,11 @@ var UI = (function() {
 			textAlign(LEFT, TOP);
 			text(DEBUG_TEXT,0,0);
 		},
-		setMessage: (messageText, darkenScreen, endCriteria, callback) =>
+		setMessage: (messageObj, darkenScreen, endCriteria, callback) =>
 		{
-			message = messageText;
+			message = messageObj;
+			if (Object.prototype.toString.call(message) === "[object String]" ) imgMessage = false;
+			else imgMessage = true;
 			darken = darkenScreen;
 			messageEndCriteria = endCriteria;
 			messageEndCallback = callback;
@@ -164,12 +168,17 @@ var UI = (function() {
 				rect(0,0,width,height);
 			}
 			
-			textAlign(CENTER,CENTER)
-			textSize(72*UI.textScale);
-			stroke(BLACK)
-			fill(WHITE)
-			strokeWeight(10*UI.textScale)
-			text(message,mainRegion.center.x, mainRegion.center.y);
+			
+			if(!imgMessage)
+			{
+				textAlign(CENTER,CENTER)
+				textSize(72*UI.textScale);
+				stroke(BLACK)
+				fill(WHITE)
+				strokeWeight(10*UI.textScale)
+				text(message,mainRegion.center.x, mainRegion.center.y);
+			}
+			else image(message.image, message.origin.x, message.origin.y, message.size.x, message.size.y)
 			
 			if(messageEndCriteria())
 			{
@@ -593,7 +602,7 @@ class MenuBarItem
 		//this.colour = color(colour);
 		this.shade = backCol;
 		this.img = imgFile;
-		if(Object.prototype.toString.call(action) === "[object String]")
+		if(Object.prototype.toString.call(action) === "[object String]" || (typeof action === 'object' && action !== null))
 		{
 			this.action = UI.setMessage.bind(null, action, true, function(){return this.hoverTime==0}.bind(this));
 		}
