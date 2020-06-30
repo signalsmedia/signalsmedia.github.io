@@ -21,7 +21,7 @@ Object.freeze(ALL_STATES);
 
 const TIME_THRESHOLD = 1200; // Milliseconds
 const DELTA_MAX = 160
-const LOCAL_DEBUG = false;
+const LOCAL_DEBUG = true;
 const DEBUG_TEXT = "Q - Flip Camera & Guides\nW - Toggle Word Mode\nE - Toggle Flag Type\nR - Toggle Asyncronous Mode\nT - Return to Main Menu"
 
 var RED;

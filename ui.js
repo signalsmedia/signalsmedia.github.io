@@ -12,6 +12,7 @@ var UI = (function() {
 	var message;
 	var darken;
 	var messageEndCriteria;
+	var messageEndCallback;
 	
 	return  { 
 		// public interface variables
@@ -87,6 +88,8 @@ var UI = (function() {
 			
 			if(state.interceptSpace && pred=='SPACE') return;
 			
+			if(pred==='NEUTRAL' && state==GameState) return;
+			
 			textAlign(CENTER, CENTER);
 			stroke(0)
 			strokeWeight(6*mainRegion.scale)
@@ -146,11 +149,12 @@ var UI = (function() {
 			textAlign(LEFT, TOP);
 			text(DEBUG_TEXT,0,0);
 		},
-		setMessage: (messageText, darkenScreen, endCriteria) =>
+		setMessage: (messageText, darkenScreen, endCriteria, callback) =>
 		{
 			message = messageText;
 			darken = darkenScreen;
 			messageEndCriteria = endCriteria;
+			messageEndCallback = callback;
 		},
 		showMessage: ()=>
 		{
@@ -171,6 +175,7 @@ var UI = (function() {
 			{
 				messageEndCriteria = undefined;
 				message = undefined;
+				if(messageEndCallback) messageEndCallback();
 			}
 		},
 		showPause: ()=>

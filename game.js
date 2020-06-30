@@ -307,17 +307,13 @@ class Game
 		this.waveScale = (this.difficulty*this.difficulty*this.difficulty*(this.endlessMode ? 0.4/(Game.BIGGESTWORD*Game.BIGGESTWORD*Game.BIGGESTWORD) : 0.4))+0.2;
 		
 		
-		if(this.lives>this.maxLives) this.lives = this.maxLives;
-		if(this.lives<=0 && !this.gameOver) this.gameOver = true;		
 		
 		this.curDifficulty = 0;
 		
 		this.ships.forEach((shipLayer, l) => {shipLayer.forEach((ship, i, list)=>
 		{
 			ship.update(this.waveLayers[l],this.waveLayers[l+1]);
-			
 			this.curDifficulty += ship.difficulty;
-			
 			if(ship.remove) list.splice(i,1);
 			
 		})});
@@ -326,11 +322,26 @@ class Game
 		
 		// this.curDifficulty<this.difficulty && 
 		
-		if(this.spawnDelay<=0)
+		if(this.spawnDelay<=0 && !this.gameOver)
 		{
 			this._addShip();
 			this.spawnDelay=10;
 		}
+		
+		if(this.lives>this.maxLives) this.lives = this.maxLives;
+		
+		if(this.lives<=0 && !this.gameOver) 
+		{
+			this.gameOver = true;
+			this.ships.forEach((shipLayer, l) => {shipLayer.forEach((ship, i, list)=>
+			{
+				ship.dead = true;
+			})});
+			
+			let timeout = millis()+4000;
+			UI.setMessage("GAME OVER", true, function(){return (millis()>=timeout)}, function(){nextState(GameAMenuState)})
+		}
+		
 	}
 	
 	_drawLives()

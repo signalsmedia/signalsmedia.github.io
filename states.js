@@ -193,7 +193,6 @@ const GameAMenuState =
 		if(this.menu) this.menu.draw();
 	},
 
-
 };
 
 const LearnMenuState =
