@@ -20,7 +20,7 @@ const LoadingState =
 		if(WebcamView.isReady())
 		{
 			fill(GREEN);
-			text("WEBCAM READY",width/2,height/2)
+			text("WEBCAM READY",windowWidth/2,mainRegion.innerOrigin.y)
 		}
 		else
 		{
