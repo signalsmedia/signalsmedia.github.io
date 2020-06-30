@@ -116,6 +116,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+var introWait;
 
 ///// P5 FUNCTIONS /////
 function preload()
@@ -126,8 +127,7 @@ function preload()
 	GuideCards.preload();
 	
 	// if loading was quick, wait for animation to finish
-	let timeTaken = millis()-loadStart;
-	if(timeTaken<1000) await sleep(1000-timeTaken);
+	introWait = Math.max(0,1000-(millis()-loadStart));
 }
 
 var linkSpan;
