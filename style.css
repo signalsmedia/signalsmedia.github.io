@@ -1,0 +1,85 @@
+html, body 
+{
+  margin: 0;
+  padding: 0;
+  
+  /* background: #4AC29A; */
+  /* background: -webkit-linear-gradient(to top, #4AC29A, #BDFFF3); */
+  /* background: linear-gradient(to top, #4AC29A, #BDFFF3); */
+  
+  background: #2980B9;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #2980B9, #6DD5FA, #FFFFFF  80%);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #2980B9, #6DD5FA, #FFFFFF 80%); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  
+  /* height: 100%; */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+canvas 
+{
+	display:block;
+}
+canvas:focus
+{
+	outline:0;
+}
+
+#p5_loading
+{
+	position: relative;
+	width: 20vw;
+	height: 20vw;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+
+#loading_circ
+{
+	/* font-size: 100%; */
+	/* font-family: "Open Sans",Helvetica,Roboto,Arial,sans-serif; */
+	/* font-weight: normal; */
+	line-height: 1.5;
+	color: #0a0a0a;
+	-webkit-font-smoothing: antialiased;
+	box-sizing: inherit;
+	padding: 0;
+	background-color: #fff;
+	border: 1px solid #dcdcdc;
+	border-radius: 50%;
+	margin: auto;
+	width: 100%;
+	height: 100%;
+	animation: scale-in 1s cubic-bezier(0.6, 0.1, 0.6, 1.8) forwards, fade 1s ease-in-out;
+}
+
+#signals_loading
+{
+	line-height: 1.5;
+	color: #0a0a0a;
+	-webkit-font-smoothing: antialiased;
+	box-sizing: inherit;
+	border: 0;
+	width: 60%;
+	height: auto;
+	position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+@keyframes scale-in
+{
+	0%{transform:scale(0);}
+	100%{transform:scale(1);}
+}
+
+@keyframes fade
+{
+	0%{opacity:0;}
+	100%{opacity:1;}
+}
