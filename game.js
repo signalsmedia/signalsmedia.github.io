@@ -119,19 +119,19 @@ class Ship
 			if(!this.currentIndex)
 			{
 				fill(WHITE);
-				text(this.word,this.pos.x+this.wordOffset,this.pos.y-this.g.shipUnitShape.y/5);
+				text(this.word,this.pos.x+this.wordOffset,this.pos.y-this.g.shipUnitShape.y/3);
 			}
 			else if(this.failed)
 			{
 				fill(RED);
-				text(this.word,this.pos.x+this.wordOffset,this.pos.y-this.g.shipUnitShape.y/5);
+				text(this.word,this.pos.x+this.wordOffset,this.pos.y-this.g.shipUnitShape.y/3);
 			}
 			else
 			{
 				fill(GREEN)
-				text(this.complete,this.pos.x+this.wordOffset,this.pos.y-this.g.shipUnitShape.y/5);
+				text(this.complete,this.pos.x+this.wordOffset,this.pos.y-this.g.shipUnitShape.y/3);
 				fill(YELLOW)
-				text(this.incomplete,this.pos.x+this.wordOffset+this.wordOffsetB,this.pos.y-this.g.shipUnitShape.y/5);
+				text(this.incomplete,this.pos.x+this.wordOffset+this.wordOffsetB,this.pos.y-this.g.shipUnitShape.y/3);
 			}
 		}
 		
@@ -153,7 +153,7 @@ class Game
 	static preload()
 	{
 		Game.waveUnit = loadImage('assets/wave.png');
-		Game.shipUnit = loadImage('assets/boat.png');
+		Game.shipUnit = loadImage('assets/boat1.png');
 		Game.heartUnit = loadImage('assets/heart.png');
 		Game.rockUnits.push(loadImage('assets/rock1.png'));
 		Game.rockUnits.push(loadImage('assets/rock2.png'));
@@ -524,7 +524,7 @@ class Game
 		this.hudSize = mainRegion.innerOrigin.y-mainRegion.origin.y
 		
 		this.waveUnitShape = createVector(256*mainRegion.scale*0.8,64*mainRegion.scale*0.8);
-		this.shipUnitShape = createVector(128*mainRegion.scale*1.2,128*mainRegion.scale*1.2);
+		this.shipUnitShape = createVector(128*mainRegion.scale,128*mainRegion.scale);
 		this.heartUnitShape = createVector(64*mainRegion.scale*1.2,64*mainRegion.scale*1.2);
 		this.rockUnitShape = createVector(128*mainRegion.scale*0.8,256*mainRegion.scale*0.8);
 		
