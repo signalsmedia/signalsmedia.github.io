@@ -130,7 +130,7 @@ function setup()
 	Canvas = createCanvas(windowWidth,windowHeight, P2D);
 	
 	
-	linkSpan = createSpan('Created for <a href="https://www.signals.org.uk/">Signals</a> by Ben Tilbury');
+	linkSpan = createSpan('Developed for <a href="https://www.signals.org.uk/">Signals</a> by Ben Tilbury');
 	linkSpan.id("reflink")
 	linkSpan.hide();
 
@@ -404,7 +404,7 @@ function windowResized()
 	state.updateDimensionsPending = false;
 	
 	textSize(windowWidth*0.01);
-	let h = textWidth("Created for Signals by Ben Tilbury");
+	let h = textWidth("Developed for Signals by Ben Tilbury");
 	linkSpan.position(windowWidth/2-h/2,windowHeight-windowWidth*0.02)
 	linkSpan.show()
 }
