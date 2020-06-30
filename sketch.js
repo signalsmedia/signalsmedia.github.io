@@ -112,13 +112,22 @@ var tabPaused;
 // p5.disableFriendlyErrors = !LOCAL_DEBUG
 p5.disableFriendlyErrors = true;
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 ///// P5 FUNCTIONS /////
 function preload()
 {
+	let loadStart = millis();
 	WebcamView.preload();
 	Game.preload();
 	GuideCards.preload();
 	
+	// if loading was quick, wait for animation to finish
+	let timeTaken = millis()-loadStart;
+	if(timeTaken<1000) await sleep(1000-timeTaken);
 }
 
 var linkSpan;
