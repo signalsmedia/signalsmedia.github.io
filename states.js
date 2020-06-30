@@ -333,7 +333,7 @@ const GameState =
 		this.overrideRegion = true;
 		
 		windowResized();
-		if(level)
+		if(level!=undefined)
 		{
 			this.lastLevel = level;
 			this.game = new Game(level,4);
