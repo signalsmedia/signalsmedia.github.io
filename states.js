@@ -35,12 +35,12 @@ const LoadingState =
 		if(Model.isReady())
 		{
 			fill(GREEN);
-			text("NEURAL NETWORK READY",windowWidth/2, mainRegion.innerOrigin.y + mainRegion.innerSize.y)
+			text("NEURAL NETWORK READY", windowWidth/2, mainRegion.innerOrigin.y + mainRegion.innerSize.y)
 		}
 		else
 		{
 			fill(RED);
-			text("LOADING NEURAL NETWORK...", mainRegion.innerOrigin.y + mainRegion.innerSize.y)
+			text("LOADING NEURAL NETWORK...", windowWidth/2, mainRegion.innerOrigin.y + mainRegion.innerSize.y)
 		}
 				
 	},

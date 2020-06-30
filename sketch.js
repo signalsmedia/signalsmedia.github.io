@@ -112,22 +112,66 @@ var tabPaused;
 // p5.disableFriendlyErrors = !LOCAL_DEBUG
 p5.disableFriendlyErrors = true;
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+
+var introDone = false;
+var preloadDone = false;
+
+var ready = false;
+
+function animationEnd(event)
+{
+	if(preloadDone) fadeLoader();
+	introDone = true;
 }
 
-var introWait;
+function fadeLoader()
+{
+	// loadingDiv.onwebkitanimationend = endLoader;
+	// loadingDiv.onanimationend = endLoader;
+	// loadingDiv.onmozanimationend = endLoader;
+	// loadingDiv.onmsanimationend = endLoader;
+	
+	loadingDiv.style.display = 'none';
+	ready = true;
+	// loadingDiv.style.animation = "fade 1s ease-in-out reverse";
+	// loadingDiv.style.webkitAnimation = "fade 1s ease-in-out reverse";
+	// loadingDiv.style.mozAnimation = "fade 1s ease-in-out reverse";
+	// loadingDiv.style.msAnimation = "fade 1s ease-in-out reverse";
+	
+	// Canvas.elt.style.animation = "fade 1s ease-in-out";
+	// Canvas.elt.style.webkitAnimation = "fade 1s ease-in-out";
+	// Canvas.elt.style.mozAnimation = "fade 1s ease-in-out";
+	// Canvas.elt.style.msAnimation = "fade 1s ease-in-out";
+	
+	// Canvas.style("animation", "fade 1s ease-in-out");
+	// Canvas.style("webkitAnimation", "fade 1s ease-in-out");
+	// Canvas.style("mozAnimation", "fade 1s ease-in-out");
+	// Canvas.style("msAnimation", "fade 1s ease-in-out");
+	
+	//ready = 0;
+	
+	
+}
+
+// function endLoader()
+// {
+	// loadingDiv.style.display = 'none';
+	// ready = 1;
+// }
+
+var loadingDiv = document.getElementById('loading_circ');
+loadingDiv.onwebkitanimationend = animationEnd;
+loadingDiv.onanimationend = animationEnd;
+loadingDiv.onmozanimationend = animationEnd;
+loadingDiv.onmsanimationend = animationEnd;
 
 ///// P5 FUNCTIONS /////
 function preload()
 {
-	let loadStart = millis();
+	//introEnd = millis()+1000;
 	WebcamView.preload();
 	Game.preload();
 	GuideCards.preload();
-	
-	// if loading was quick, wait for animation to finish
-	introWait = Math.max(0,1000-(millis()-loadStart));
 }
 
 var linkSpan;
@@ -136,8 +180,11 @@ function setup()
 {
 	document.oncontextmenu = function() { return false; }
 	
-	Canvas = createCanvas(windowWidth,windowHeight, P2D);
+	if(introDone) fadeLoader();
+	preloadDone = true;
 	
+	Canvas = createCanvas(windowWidth,windowHeight, P2D);
+
 	
 	linkSpan = createSpan('Developed for <a href="https://www.signals.org.uk/">Signals</a> by Ben Tilbury');
 	linkSpan.id("reflink")
@@ -186,6 +233,10 @@ var mouseVisible = true;
 
 function draw() 
 {
+	let m = millis();
+	
+	if(!ready) return;
+	
 	//// UPDATE ////
 	deltaTime = min(deltaTime,DELTA_MAX);
 	if(!state.ignoreModel) Model.update();
@@ -232,11 +283,11 @@ function draw()
 			mouseVisible = true;
 		}
 		
-		if (mouseWait < millis() + 2000) mouseWait = millis() + 2000; 
+		if (mouseWait < m + 2000) mouseWait = m + 2000; 
 	} 
 	else 
 	{
-		if (mouseVisible && millis() > mouseWait) 
+		if (mouseVisible && m > mouseWait) 
 		{
 			//noCursor(); 
 			document.body.style.cursor = 'none';
@@ -245,6 +296,13 @@ function draw()
 		}
 	}
 	
+	// if(ready>=0 && ready < 1)
+	// {
+		// ready += deltaTime*0.001
+		
+		// Canvas.canvas.style.opacity = Math.min(1,ready);
+		// Canvas.canvas.style.webkitOpacity = Math.min(1,ready);
+	// }
 	// // // theta += speed;
 	// let step = windowWidth/numPoints
 	// let dx = (TWO_PI/freq) * step;
