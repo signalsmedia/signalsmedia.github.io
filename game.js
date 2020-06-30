@@ -524,7 +524,7 @@ class Game
 		this.hudSize = mainRegion.innerOrigin.y-mainRegion.origin.y
 		
 		this.waveUnitShape = createVector(256*mainRegion.scale*0.8,64*mainRegion.scale*0.8);
-		this.shipUnitShape = createVector(128*mainRegion.scale,128*mainRegion.scale);
+		this.shipUnitShape = createVector(128*mainRegion.scale*0.8,128*mainRegion.scale*0.8);
 		this.heartUnitShape = createVector(64*mainRegion.scale*1.2,64*mainRegion.scale*1.2);
 		this.rockUnitShape = createVector(128*mainRegion.scale*0.8,256*mainRegion.scale*0.8);
 		
