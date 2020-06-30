@@ -25,6 +25,20 @@ canvas:focus
 	outline:0;
 }
 
+#reflink
+{
+	background-color: #fff;
+	/* width: 50%; */
+	/* margin: auto; */
+	text-align: center;
+	font-family: dosis;
+	font-weight: bold;
+	font-size: 1vw;
+	padding-left: 0.5vw;
+	padding-right: 0.5vw;
+	border-radius: 2.5vw;
+}
+
 #p5_loading
 {
 	position: relative;

@@ -121,13 +121,20 @@ function preload()
 	
 }
 
+var linkSpan;
+
 function setup() 
 {
 	document.oncontextmenu = function() { return false; }
 	
 	Canvas = createCanvas(windowWidth,windowHeight, P2D);
+	
+	
+	linkSpan = createSpan('Created for <a href="https://www.signals.org.uk/">Signals</a> by Ben Tilbury');
+	linkSpan.id("reflink")
+	linkSpan.hide();
 
-	if(!LOCAL_DEBUG) noCursor();
+	// if(!LOCAL_DEBUG) noCursor();
 	
 	textFont("Dosis", 64);
 	textStyle(BOLD)
@@ -165,49 +172,68 @@ function setup()
 // var T = 0.004
 // var D = 0.01
 
+var mouseWait = 0;
+var mouseVisible = true;
+
 function draw() 
 {
-	if(DEBUG_DRAW_REGIONS && state.__debugRegions)
+	//// UPDATE ////
+	deltaTime = min(deltaTime,DELTA_MAX);
+	if(!state.ignoreModel) Model.update();
+	if(state.update) state.update();
+	
+	//// DRAW ////
+	clear();
+	// Background //
+	drawStage = 'pre';
+	if(state.preDraw) state.preDraw();
+	// Flippabled //
+	drawStage = 'flip';
+	push();
+	if(flip)
 	{
-		state.__debugRegions();
+	  translate(width/2,0);
+	  scale(-1,1);
+	  translate(-width/2,0);
 	}
-	else
-	{
-		//// UPDATE ////
-		deltaTime = min(deltaTime,DELTA_MAX);
-		if(!state.ignoreModel) Model.update();
-		if(state.update) state.update();
-		
-		//// DRAW ////
-		clear();
-		// Background //
-		drawStage = 'pre';
-		if(state.preDraw) state.preDraw();
-		// Flippabled //
-		drawStage = 'flip';
-		push();
-		if(flip)
-		{
-		  translate(width/2,0);
-		  scale(-1,1);
-		  translate(-width/2,0);
-		}
-		if(!state.ignoreWebcam) WebcamView.draw();
-		if(state.flipDraw) state.flipDraw();
-		if(!state.ignoreFlags) Flag.draw();
-		pop();
-		// Foreground //
-		drawStage = 'post';
-		if(state.postDraw) state.postDraw();
-		
-		//drawStage = 'flag';
-		//if(!state.ignoreFlags) Flag.draw();
+	if(!state.ignoreWebcam) WebcamView.draw();
+	if(state.flipDraw) state.flipDraw();
+	if(!state.ignoreFlags) Flag.draw();
+	pop();
+	// Foreground //
+	drawStage = 'post';
+	if(state.postDraw) state.postDraw();
+	
+	//drawStage = 'flag';
+	//if(!state.ignoreFlags) Flag.draw();
 
-		drawStage = 'overlay';
-		if(paused) UI.showPause();
-		else if(UI.hasMessage()) UI.showMessage();
+	drawStage = 'overlay';
+	if(paused) UI.showPause();
+	else if(UI.hasMessage()) UI.showMessage();
+	
+	//Model.debug();
+	
+	if ((mouseX != pmouseX) || (mouseY != pmouseY)) 
+	{
+		if (!mouseVisible) 
+		{
+			//cursor();
+			document.body.style.cursor = 'auto';
+			Canvas.style("cursor","auto")
+			mouseVisible = true;
+		}
 		
-		//Model.debug();
+		if (mouseWait < millis() + 2000) mouseWait = millis() + 2000; 
+	} 
+	else 
+	{
+		if (mouseVisible && millis() > mouseWait) 
+		{
+			//noCursor(); 
+			document.body.style.cursor = 'none';
+			Canvas.style("cursor","none")
+			mouseVisible = false;
+		}
 	}
 	
 	// // // theta += speed;
@@ -376,6 +402,11 @@ function windowResized()
 	ALL_STATES.forEach((s)=>s.updateDimensionsPending=true);
 	if(state.updateDimensions) state.updateDimensions();
 	state.updateDimensionsPending = false;
+	
+	textSize(windowWidth*0.01);
+	let h = textWidth("Created for Signals by Ben Tilbury");
+	linkSpan.position(windowWidth/2-h/2,windowHeight-windowWidth*0.02)
+	linkSpan.show()
 }
 
 function angleToIndex(angle) { return (round(angle*8/(PI*2))+6) % 8 }
