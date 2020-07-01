@@ -476,12 +476,18 @@ const DebugState =
 		UI.drawDebugText();
 	},
 	
+	flipDraw: function()
+	{
+		UI.drawHands();
+	},
+	
 	postDraw: function()
 	{
 		if(drawStage!='post') throw "postDraw must be called within 'post' drawing stage";
 		UI.drawPredictionSignal(this.wordMode);
 		if(this.wordMode) UI.drawWord(this.sentence);
 		if(this.sideGuides) this.sideGuides.draw();
+		
 	},
 	
     onExit: function(){this.sentence="";},

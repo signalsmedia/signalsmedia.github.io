@@ -118,7 +118,7 @@ class Flag
 	  Flag.rightFlag = new Flag(128, createVector(mainRegion.idealSize/2,mainRegion.idealSize/2), createVector(0,1), mainRegion.idealSize/2,mainRegion.idealSize/2, RED);
 	  Flag.leftFlag = new Flag(128, createVector(mainRegion.idealSize/2,mainRegion.idealSize/2), createVector(0,1), mainRegion.idealSize/2, mainRegion.idealSize/2, BLUE);
 	  Flag.graphics = createGraphics(mainRegion.idealSize, mainRegion.idealSize, WEBGL);
-	  Flag.graphics.translate(-mainRegion.idealSize/2,-mainRegion.idealSize/2);
+	  //Flag.graphics.translate(-mainRegion.idealSize/2,-mainRegion.idealSize/2);
 	  Flag.graphics.setAttributes('antialias', true);
 	  Flag.updateDimensions();
   }
@@ -230,17 +230,19 @@ class Flag
   
   static draw()
   {
-	  if(drawStage!='flip') throw "Flags must be drawn within 'flag' drawing stage"
+	  if(drawStage!='flip' && drawStage!='flag') throw "Flags must be drawn within 'flip' or 'flag' drawing stage"
 	  if(Flag.graphics)
 	  {
-		//Flag.graphics.push();
-		//Flag.graphics.translate(flip ? 0 : -mainRegion.idealSize/2,-mainRegion.idealSize/2);
-		//if(flip)
-		//{
-		//  Flag.graphics.scale(-1,1);
-		//  Flag.graphics.translate(-mainRegion.idealSize/2,0);
-		//}
-		
+		  if(drawStage=='flag')
+		  {
+			Flag.graphics.push();
+			Flag.graphics.translate(flip ? 0 : -mainRegion.idealSize/2,-mainRegion.idealSize/2);
+			if(flip)
+			{
+			 Flag.graphics.scale(-1,1);
+			 Flag.graphics.translate(-mainRegion.idealSize/2,0);
+			}
+		  }
 		
 		  Flag.graphics.clear();
 		  //Flag.graphics.noStroke();
@@ -248,7 +250,7 @@ class Flag
 			f.draw();
 			// f.debugDraw2();
 		  })
-		//Flag.graphics.pop();
+		if(drawStage=='flag') Flag.graphics.pop();
 		image(Flag.graphics,mainRegion.origin.x,mainRegion.origin.y,mainRegion.size.x,mainRegion.size.y);
 	  }
   }
@@ -316,11 +318,15 @@ class Flag
 
   update(origin, dir) 
   {
-    this.origin = p5.Vector.mult(origin,mainRegion.idealSize);
+    this.origin = p5.Vector.mult(origin, mainRegion.idealSize);
     this.dir = dir;
 	
-	this.tip.x = (this.origin.x + this.dir.x * this.poleSize/2)/mainRegion.idealSize;
-	this.tip.y = (this.origin.y + this.dir.y * this.poleSize/2)/mainRegion.idealSize;
+	//this.origin.sub(p5.Vector.mult(this.dir,this.poleSize/2))
+	this.tip.x = (this.origin.x + this.dir.x * this.poleSize)/mainRegion.idealSize;
+	this.tip.y = (this.origin.y + this.dir.y * this.poleSize)/mainRegion.idealSize;
+	
+	//this.tip.x = (this.origin.x + this.dir.x * this.poleSize/2)/mainRegion.idealSize;
+	//this.tip.y = (this.origin.y + this.dir.y * this.poleSize/2)/mainRegion.idealSize;
 	
 	if(Flag.useSimple)
 	{

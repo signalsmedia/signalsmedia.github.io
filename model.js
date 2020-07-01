@@ -103,7 +103,8 @@ var Model = (function() {
 		
 		normIfNot();
 		
-		Flag.update(points["rightPos"],rightDir,points["leftPos"],leftDir)
+		//Flag.update(points["rightPos"],rightDir,points["leftPos"],leftDir)
+		Flag.update(p5.Vector.add(points["rightPos"],points["rightElbow"]).div(2), rightDir, p5.Vector.add(points["leftPos"],points["leftElbow"]).div(2), leftDir)
 		Flag.adaptiveResolution();
 	}
 	

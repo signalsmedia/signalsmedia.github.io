@@ -263,14 +263,14 @@ function draw()
 	}
 	if(!state.ignoreWebcam) WebcamView.draw();
 	if(state.flipDraw) state.flipDraw();
-	if(!state.ignoreFlags) Flag.draw();
+	//if(!state.ignoreFlags) Flag.draw();
 	pop();
 	// Foreground //
 	drawStage = 'post';
 	if(state.postDraw) state.postDraw();
 	
-	//drawStage = 'flag';
-	//if(!state.ignoreFlags) Flag.draw();
+	drawStage = 'flag';
+	if(!state.ignoreFlags) Flag.draw();
 
 	drawStage = 'overlay';
 	if(paused) UI.showPause();
