@@ -64,8 +64,8 @@ var Model = (function() {
 		inModelPipeline = true;
 		decodeSignal();
 		if(!state.ignoreFlags) updateFlags();
-		if(state.interceptSpace) checkSpaceIntercept();
-		if(state.signalHoldCallback) checkSignalHold();
+		if(state.interceptSpace && !paused) checkSpaceIntercept();
+		if(state.signalHoldCallback && !paused) checkSignalHold();
 		//else if(state.subMenu) checkMainMenuReturn();
 
 		if(state.matchSignal) checkSignalMatch();
