@@ -35,6 +35,20 @@ canvas:focus
 	font-family: dosis;
 	font-size: 1vw;
 	padding-left: 0.5vw;
+	/* padding-right: 0.5vw; */
+	border-radius: 2.5vw;
+}
+
+#git
+{
+	white-space: pre;
+	background-color: #fff;
+	/* width: 50%; */
+	/* margin: auto; */
+	text-align: left;
+	font-family: dosis;
+	font-size: 1vw;
+	/* padding-left: 0.5vw; */
 	padding-right: 0.5vw;
 	border-radius: 2.5vw;
 }

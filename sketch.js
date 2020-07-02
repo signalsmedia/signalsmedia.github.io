@@ -180,7 +180,8 @@ function preload()
 }
 
 var linkSpan;
-var ppol;// = document.getElementById('ppol');
+var ppolSpan;// = document.getElementById('ppol');
+var gitSpan
 
 function setup() 
 {
@@ -194,13 +195,17 @@ function setup()
 	// let s = createSpan('<a href="https://www.iubenda.com/privacy-policy/91430819" class="iubenda-white iubenda-embed" title="Privacy Policy ">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>');
 	// s.id("ppol");
 	
-	ppol = createSpan('<a href="https://www.iubenda.com/privacy-policy/91430819">Privacy Policy</a>');
-	ppol.id("ppol")
-	ppol.hide();
-	
 	linkSpan = createSpan('Developed for <a href="https://www.signals.org.uk/">Signals</a> by Ben Tilbury');
 	linkSpan.id("reflink")
 	linkSpan.hide();
+	
+	ppolSpan = createSpan('<a href="https://www.iubenda.com/privacy-policy/91430819">Privacy Policy</a>');
+	ppolSpan.id("ppol")
+	ppolSpan.hide();
+	
+	gitSpan = createSpan('<a href="https://github.com/signalsmedia/signalsmedia.github.io">Source Code</a>');
+	gitSpan.id("git")
+	gitSpan.hide();
 
 	// if(!LOCAL_DEBUG) noCursor();
 	
@@ -484,13 +489,16 @@ function windowResized()
 	
 	textSize(windowWidth*0.01);
 	let h = textWidth("Developed for Signals by Ben Tilbury");
-	linkSpan.position(windowWidth/2-h/2,windowHeight-windowWidth*0.02)
+	linkSpan.position(windowWidth/2-h/2-windowWidth*0.005,windowHeight-windowWidth*0.02)
 	linkSpan.show()
 	
 	textSize(windowWidth*0.01);
 	h = textWidth("Privacy Policy");
-	ppol.position(windowWidth-h-windowWidth*0.01,windowHeight-windowWidth*0.02);
-	ppol.show();
+	ppolSpan.position(windowWidth-h-windowWidth*0.01,windowHeight-windowWidth*0.02);
+	ppolSpan.show();
+	
+	gitSpan.position(windowWidth*0.01,windowHeight-windowWidth*0.02);
+	gitSpan.show();
 }
 
 function angleToIndex(angle) { return (round(angle*8/(PI*2))+6) % 8 }
