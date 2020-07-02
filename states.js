@@ -329,7 +329,8 @@ const PlaygroundState =
 		if(paused && key==" ") 
 		{
 			togglePause();
-			nextState(MainMenuState)
+			//nextState(MainMenuState)
+			nextState(GameAMenuState)
 		}
 		
 		if(keyCode===ESCAPE)togglePause();
