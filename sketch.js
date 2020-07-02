@@ -180,6 +180,7 @@ function preload()
 }
 
 var linkSpan;
+var ppol;// = document.getElementById('ppol');
 
 function setup() 
 {
@@ -189,7 +190,13 @@ function setup()
 	preloadDone = true;
 	
 	Canvas = createCanvas(windowWidth,windowHeight, P2D);
-
+	
+	// let s = createSpan('<a href="https://www.iubenda.com/privacy-policy/91430819" class="iubenda-white iubenda-embed" title="Privacy Policy ">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>');
+	// s.id("ppol");
+	
+	ppol = createSpan('<a href="https://www.iubenda.com/privacy-policy/91430819">Privacy Policy</a>');
+	ppol.id("ppol")
+	ppol.hide();
 	
 	linkSpan = createSpan('Developed for <a href="https://www.signals.org.uk/">Signals</a> by Ben Tilbury');
 	linkSpan.id("reflink")
@@ -479,6 +486,11 @@ function windowResized()
 	let h = textWidth("Developed for Signals by Ben Tilbury");
 	linkSpan.position(windowWidth/2-h/2,windowHeight-windowWidth*0.02)
 	linkSpan.show()
+	
+	textSize(windowWidth*0.01);
+	h = textWidth("Privacy Policy");
+	ppol.position(windowWidth-h-windowWidth*0.01,windowHeight-windowWidth*0.02);
+	ppol.show();
 }
 
 function angleToIndex(angle) { return (round(angle*8/(PI*2))+6) % 8 }
