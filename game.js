@@ -45,7 +45,7 @@ class Ship
 			return;
 		}
 		
-		if(signal==this.word[this.currentIndex]) this.currentIndex++;
+		if(signal==this.word[this.currentIndex] && !this.failed) this.currentIndex++;
 		else if(this.currentIndex>0) this.failed = true;
 		
 		this.complete = this.word.slice(0,this.currentIndex);
