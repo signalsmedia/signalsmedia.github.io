@@ -57,7 +57,8 @@ const IntroMenuState =
 		tolerance:0.85,
 		callback: ()=>
 		{
-			if(IntroMenuState.returnToNeutral) nextState(MainMenuState);
+			// if(IntroMenuState.returnToNeutral) nextState(MainMenuState);
+			if(IntroMenuState.returnToNeutral) nextState(GameAMenuState);
 			else 
 			{
 				IntroMenuState.matchSignal.signal = "NEUTRAL";
@@ -109,9 +110,9 @@ const MainMenuState =
 	{
 		this.menu = new MenuBar(PI/2,
 		[
-			{img:loadImage("/assets/menus/main/learn.png"), back:color(90,111,5), degs:116.5, action: function(){nextState(LearnMenuState)}},
-			{img:loadImage("/assets/menus/main/settings.png"), back:color(71,25,69), degs:37, action: "Coming Soon..."},
-			{img:loadImage("/assets/menus/main/play.png"), back:color(22,87,134), degs:116.5, action: function(){nextState(GameAMenuState)}},
+			{text:"LEARN", img:loadImage("/assets/menus/main/learn.png"), back:color(90,111,5), degs:116.5, action: function(){nextState(LearnMenuState)}},
+			{text:"SETTINGS", img:loadImage("/assets/menus/main/settings.png"), back:color(71,25,69), degs:37, action: "Coming Soon..."},
+			{text:"PLAY",img:loadImage("/assets/menus/main/play.png"), back:color(22,87,134), degs:116.5, action: function(){nextState(GameAMenuState)}},
 		], loadImage("/assets/menus/main/background.png"), 2);
 	},
 
@@ -137,8 +138,12 @@ const MainMenuState =
 		if(drawStage!='pre') throw "preDraw must be called within 'pre' drawing stage";
 		if(this.menu) this.menu.draw();
 	},
-
-
+	
+	postDraw: function()
+	{
+		if(drawStage!='post') throw "postDraw must be called within 'post' drawing stage";
+		if(this.menu) this.menu.postDraw();
+	},
 };
 
 const GameAMenuState =
@@ -155,23 +160,23 @@ const GameAMenuState =
 		this.howToImage = loadImage('/assets/howtogameA.png');
 	},
 	
-	interceptSpace: function()
-	{
-		nextState(MainMenuState)
-	},
+	// interceptSpace: function()
+	// {
+		// nextState(MainMenuState)
+	// },
 	
 	init: function()
 	{
 		this.menu = new MenuBar(PI/2,
 		[
-			{img:loadImage("/assets/menus/shipgame/howtoplay.png"), back:color(32,86,43), degs:67.5, action: {image:GameAMenuState.howToImage, origin:mainRegion.origin, size:mainRegion.size}},
-			{img:loadImage("/assets/menus/shipgame/l1.png"), back:color(88,88,88), degs:22.5, action: function(){nextState(GameState, 0)}},
-			{img:loadImage("/assets/menus/shipgame/l2.png"), back:color(80,80,80), degs:22.5, action: function(){nextState(GameState, 1)}},
-			{img:loadImage("/assets/menus/shipgame/l3.png"), back:color(73,73,73), degs:22.5, action: function(){nextState(GameState, 2)}},
-			{img:loadImage("/assets/menus/shipgame/l4.png"), back:color(67,67,67), degs:22.5, action: function(){nextState(GameState, 3)}},
-			{img:loadImage("/assets/menus/shipgame/l5.png"), back:color(60,60,60), degs:22.5, action: function(){nextState(GameState, 4)}},
-			{img:loadImage("/assets/menus/shipgame/l6.png"), back:color(53,53,53), degs:22.5, action: function(){nextState(GameState, 5)}},
-			{img:loadImage("/assets/menus/shipgame/endlessmode.png"), back:color(140,0,14), degs:67.5, action: function(){nextState(GameState, -1)}},
+			{text:"HOW TO PLAY",img:loadImage("/assets/menus/shipgame/howtoplay.png"), back:color(32,86,43), degs:67.5, action: {image:GameAMenuState.howToImage, origin:mainRegion.origin, size:mainRegion.size}},
+			{text:"LEVEL 1",img:loadImage("/assets/menus/shipgame/l1.png"), back:color(88,88,88), degs:22.5, action: function(){nextState(GameState, 0)}},
+			{text:"LEVEL 2",img:loadImage("/assets/menus/shipgame/l2.png"), back:color(80,80,80), degs:22.5, action: function(){nextState(GameState, 1)}},
+			{text:"LEVEL 3",img:loadImage("/assets/menus/shipgame/l3.png"), back:color(73,73,73), degs:22.5, action: function(){nextState(GameState, 2)}},
+			{text:"LEVEL 4",img:loadImage("/assets/menus/shipgame/l4.png"), back:color(67,67,67), degs:22.5, action: function(){nextState(GameState, 3)}},
+			{text:"LEVEL 5",img:loadImage("/assets/menus/shipgame/l5.png"), back:color(60,60,60), degs:22.5, action: function(){nextState(GameState, 4)}},
+			{text:"LEVEL 6",img:loadImage("/assets/menus/shipgame/l6.png"), back:color(53,53,53), degs:22.5, action: function(){nextState(GameState, 5)}},
+			{text:"ENDLESS MODE",img:loadImage("/assets/menus/shipgame/endlessmode.png"), back:color(140,0,14), degs:67.5, action: function(){nextState(GameState, -1)}},
 		], loadImage("/assets/menus/shipgame/background.png"), 2);
 	},
 
@@ -202,6 +207,12 @@ const GameAMenuState =
 		if(drawStage!='pre') throw "preDraw must be called within 'pre' drawing stage";
 		if(this.menu) this.menu.draw();
 	},
+	
+	postDraw: function()
+	{
+		if(drawStage!='post') throw "postDraw must be called within 'post' drawing stage";
+		if(this.menu) this.menu.postDraw();
+	},
 
 };
 
@@ -222,9 +233,9 @@ const LearnMenuState =
 	{
 		this.menu = new MenuBar(PI/2,
 		[
-			{img:loadImage("/assets/menus/learn/discover.png"), back:color(74,128,168), degs:90, action: "Coming Soon..."},
-			{img:loadImage("/assets/menus/learn/whatis.png"), back:color(185,81,0), degs:90, action: "Coming Soon..."},
-			{img:loadImage("/assets/menus/learn/sandbox.png"), back:color(140,0,58), degs:90, action: function(){nextState(PlaygroundState)}},
+			{text:"DISCOVER MODE", img:loadImage("/assets/menus/learn/discover.png"), back:color(74,128,168), degs:90, action: "Coming Soon..."},
+			{text:"WHAT IS SEMAPHORE", img:loadImage("/assets/menus/learn/whatis.png"), back:color(185,81,0), degs:90, action: "Coming Soon..."},
+			{text:"SANDBOX MODE", img:loadImage("/assets/menus/learn/sandbox.png"), back:color(140,0,58), degs:90, action: function(){nextState(PlaygroundState)}},
 		], loadImage("/assets/menus/learn/background.png"));
 	},
 
@@ -250,7 +261,13 @@ const LearnMenuState =
 		if(drawStage!='pre') throw "preDraw must be called within 'pre' drawing stage";
 		if(this.menu) this.menu.draw();
 	},
-
+	
+	
+	postDraw: function()
+	{
+		if(drawStage!='post') throw "postDraw must be called within 'post' drawing stage";
+		if(this.menu) this.menu.postDraw();
+	}
 
 };
 
@@ -375,13 +392,22 @@ const GameState =
 		if(this.game) this.game.update();
 	},
 	
+	preDraw: function()
+	{
+		if(drawStage!='pre') throw "preDraw must be called within 'pre' drawing stage";
+		//UI.drawDial();
+		this.game.draw();
+		if(this.sideGuides) this.sideGuides.draw();		
+	},
+	
 	postDraw: function()
 	{
 		if(drawStage!='post') throw "postDraw must be called within 'post' drawing stage";
 		UI.drawPredictionSignal(true);
-		//UI.drawDial();
-		this.game.draw();
-		if(this.sideGuides) this.sideGuides.draw();
+		// // //UI.drawDial();
+		// this.game.draw();
+		// if(this.sideGuides) this.sideGuides.draw();
+		this.game.postDraw();
 	},
 	
 	overrideRegion: true,
@@ -473,6 +499,7 @@ const DebugState =
 	preDraw: function()
 	{
 		if(drawStage!='pre') throw "preDraw must be called within 'pre' drawing stage";
+		if(this.sideGuides) this.sideGuides.draw();
 		UI.drawDebugText();
 	},
 	
@@ -486,7 +513,6 @@ const DebugState =
 		if(drawStage!='post') throw "postDraw must be called within 'post' drawing stage";
 		UI.drawPredictionSignal(this.wordMode);
 		if(this.wordMode) UI.drawWord(this.sentence);
-		if(this.sideGuides) this.sideGuides.draw();
 		
 	},
 	

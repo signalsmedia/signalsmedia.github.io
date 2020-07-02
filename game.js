@@ -427,12 +427,16 @@ class Game
 		// strokeWeight(2*mainRegion.scale);
 		// line(this.deadZone,0,this.deadZone,windowHeight);
 		
-		this._drawScore();
 		
-		this._drawLives();
 		
 		// // // strokeWeight(10*mainRegion.scale);
 		// point(this.whirlHole.x,this.whirlHole.y);
+	}
+	
+	postDraw()
+	{
+		this._drawScore();
+		this._drawLives();
 	}
 	
 	_drawLayer(layer,index)

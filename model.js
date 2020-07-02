@@ -165,11 +165,11 @@ var Model = (function() {
 		
 		if(state.matchSignal.score==1)
 		{
-			if(matchTime>-1) matchTime += deltaTime;
+			matchTime += deltaTime;
 			
 			if(matchTime>=TIME_THRESHOLD)
 			{
-				matchTime=-1;
+				matchTime=0;
 				state.matchSignal.callback();
 			}
 		}
@@ -317,7 +317,7 @@ var Model = (function() {
 		// public interface methods
 		resetTimes: ()=> {
 			holdTime=-1;
-			matchTime=-1;
+			matchTime=0;
 		},
 		init: async ()=> {
 			if(LOCAL_DEBUG)

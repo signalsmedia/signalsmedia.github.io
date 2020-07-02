@@ -503,29 +503,35 @@ class MenuBar
 		let neutralPart = neutralSize/2;
 		let remainingSize = 2*PI - neutralSize;
 		
+		this.currentItem = null;
+		this.currentSide = null;
+		this.hoverTime = 0;
+		
 		//let totalWeight = itemList.reduce((a, b) => a + b.weight, 0)
 		
 		//let weightScale = remainingSize/totalWeight;
 		
+		let _this = this;
 		
 		// Start with neutral partA
-		this.items.push(new MenuBarItem(null,null,0,neutralPart,neutralPart,'#808080',this.shape))
+		this.items.push(new MenuBarItem(null,null,"",0,neutralPart,neutralPart,'#808080',_this))
 		
 		let runningStart = neutralPart;
 		
 		itemList.forEach((item) => 
 		{
 			let rads = radians(item.degs);
-			this.items.push(new MenuBarItem(item.img,item.action,runningStart,runningStart+rads,rads,item.back,this.shape))
+			this.items.push(new MenuBarItem(item.img,item.action,item.text,runningStart,runningStart+rads,rads,item.back,_this))
 			runningStart += rads;
 		})
 		
 		// End with neutral partB
-		this.items.push(new MenuBarItem(null,null,runningStart,2*PI,neutralPart,'#808080',this.shape))
+		this.items.push(new MenuBarItem(null,null,"",runningStart,2*PI,neutralPart,'#808080',_this))
 	}
 	
 	resetAll()
 	{
+		this.resetSelected();
 		this.items.forEach((item) => item.reinit());
 	}
 	
@@ -552,34 +558,64 @@ class MenuBar
 		debugRT = rt;
 		debugLT = lt;
 		
-		let rcheck = (rt.magSq()>=1);
-		let lcheck = (lt.magSq()>=1);
+		let rcheck = (rt.magSq()>=1 && this.currentSide!='left');
+		let lcheck = (lt.magSq()>=1 && this.currentSide!='right');
 		
 		if(!rcheck && !lcheck) 
 		{
-			this.items.forEach((item) => item.reinit());
-			if(!Model.noMenuReset())
-			{
-				Flag.rightFlag.confirmValue = 0;
-				Flag.leftFlag.confirmValue = 0;
-			}
+			//this.items.forEach((item) => item.reinit());
+			this.resetSelected();
 			return;
 		}
 		
-		if(!rcheck && !Model.noMenuReset()) Flag.rightFlag.confirmValue = 0;
-		if(!lcheck && !Model.noMenuReset()) Flag.leftFlag.confirmValue = 0;
+		//if(!rcheck && !Model.noMenuReset()) Flag.rightFlag.confirmValue = 0;
+		//if(!lcheck && !Model.noMenuReset()) Flag.leftFlag.confirmValue = 0;
 		
 		let rhead = (rt.heading()+PI+PI/2)%(PI*2)
 		let lhead = (lt.heading()+PI+PI/2)%(PI*2)
 		
-		this.items.forEach((item) => item.update(rcheck,rhead,lcheck,lhead));
+		if(this.currentItem!=null) this.currentItem.updateSelected(this.currentSide=='right'?rhead:lhead);
+		
+		// Rechecking afterwards as it might have changed
+		if(this.currentItem==null) this.items.forEach((item) => item.update(rcheck,rhead,lcheck,lhead));
+		else 
+		{
+			if(this.hoverTime>-1) 
+			{
+				this.hoverTime += deltaTime/(TIME_THRESHOLD*2);
+				if(this.currentSide=='right') Flag.rightFlag.confirmValue = this.hoverTime;
+				if(this.currentSide=='left') Flag.leftFlag.confirmValue = this.hoverTime;
+			}
+			
+			if(this.hoverTime>=1)
+			{
+				this.hoverTime=-1;
+				Flag.rightFlag.confirmValue = 0;
+				Flag.leftFlag.confirmValue = 0;
+				
+				this.currentItem.action();
+			}
+		}
+	}
+	
+	resetSelected()
+	{
+		this.hoverTime = 0;
+		
+		if(!Model.noMenuReset())
+		{
+			Flag.rightFlag.confirmValue = 0;
+			Flag.leftFlag.confirmValue = 0;
+		}
+		if(this.currentItem) this.currentItem.selected = false;
+		this.currentItem = null;
+		this.currentSide = null;
 	}
 	
 	draw()
 	{
 		push();
 		//noStroke();
-		strokeWeight(16);
 		translate(mainRegion.center.x,mainRegion.center.y)
 		if(this.back) image(this.back, -this.shape.backSize/2, -this.shape.backSize/2, this.shape.backSize, this.shape.backSize)
 		rotate(-PI)
@@ -588,6 +624,20 @@ class MenuBar
 		
 		//translate(-mainRegion.center.x,-mainRegion.center.y)
 		pop();
+		
+	}
+	
+	postDraw()
+	{
+		if(this.currentItem)
+		{
+			strokeWeight(4*mainRegion.scale)
+			stroke(0);
+			fill(255);
+			textSize(48*UI.textScale)
+			textAlign(CENTER,TOP)
+			text(this.currentItem.text, windowWidth/2, mainRegion.innerOrigin.y+mainRegion.innerSize.y+margin/2)
+		}
 	}
 }
 
@@ -597,40 +647,43 @@ var debugLT;
 
 class MenuBarItem
 {
-	constructor(imgFile, action, start, stop, stride, backCol, parentShape)
+	constructor(imgFile, action, text, start, stop, stride, backCol, parent)
 	{
 		//this.colour = color(colour);
 		this.shade = backCol;
 		this.img = imgFile;
 		if(Object.prototype.toString.call(action) === "[object String]" || (typeof action === 'object' && action !== null))
 		{
-			this.action = UI.setMessage.bind(null, action, true, function(){return this.hoverTime==0}.bind(this));
+			this.action = UI.setMessage.bind(null, action, true, function(){return this.selected==false}.bind(this));
 		}
 		else this.action = action;
-		// this.text = text;
+		this.text = text;
 		this.start = start;
 		this.stop = stop;
 		this.stride = stride;
-				
-		this.parentShape = parentShape;
+		
+		this.parent = parent;
+		this.parentShape = parent.shape;
 		
 		this.shape = 
 		{
-			size: createVector(ceil(2*parentShape.outerRadius*Math.sin(stride/2)),ceil(parentShape.outerRadius-parentShape.innerRadius*Math.sin((PI+stride)/2))),
-			origin: createVector(parentShape.outerRadius*Math.cos((PI+stride)/2),-parentShape.outerRadius),
+			size: createVector(ceil(2*this.parentShape.outerRadius*Math.sin(stride/2)),ceil(this.parentShape.outerRadius-this.parentShape.innerRadius*Math.sin((PI+stride)/2))),
+			origin: createVector(this.parentShape.outerRadius*Math.cos((PI+stride)/2),-this.parentShape.outerRadius),
 			lift: this.parentShape.ringSize/3,
 		}
 		
 		this.isNeutral = (imgFile===null);
 		
-		this.hoverTime = 0;
+		this.selected = false;
+		
+		//this.hoverTime = 0;
 		
 		this.vector = p5.Vector.fromAngle((start+stop)/2);
 	}
 	
 	reinit()
 	{
-		this.hoverTime = 0;
+		this.selected = false;
 	}
 	
 	updateDimensions(shape)
@@ -641,44 +694,38 @@ class MenuBarItem
 		this.shape.lift = this.parentShape.ringSize/3;		
 	}
 	
+	updateSelected(head)
+	{
+		if(!this.selected) return;
+		
+		if(!(head>=this.start && head<this.stop)) this.parent.resetSelected();
+	}
+	
 	update(rcheck,rhead,lcheck,lhead)
 	{
 		if(this.isNeutral) return;
 		
 		let r = (rcheck && rhead>=this.start && rhead<this.stop);
 		let l = (lcheck && lhead>=this.start && lhead<this.stop);
-		// wooo for efficient short-circuiting.
 		if(r || l)
 		{
-			if(this.hoverTime>-1) 
-			{
-				this.hoverTime += deltaTime/(TIME_THRESHOLD*2);
-				if(r) Flag.rightFlag.confirmValue = this.hoverTime;
-				if(l)  Flag.leftFlag.confirmValue = this.hoverTime;
-			}
-			
-			if(this.hoverTime>=1)
-			{
-				this.hoverTime=-1;
-				if(r) Flag.rightFlag.confirmValue = 0;
-				if(l)  Flag.leftFlag.confirmValue = 0;
-				
-				this.action();
-			}
+			this.selected = true;
+			this.parent.currentItem = this;
+			this.parent.currentSide = r ? 'right':'left';
 		}
-		else 
-		{
-			if(this.hoverTime) 
-			{
-				if(this.r) Flag.rightFlag.confirmValue = 0;
-				if(this.l)  Flag.leftFlag.confirmValue = 0;
-			}
+		// else 
+		// {
+			// if(this.hoverTime) 
+			// {
+				// if(this.r) Flag.rightFlag.confirmValue = 0;
+				// if(this.l)  Flag.leftFlag.confirmValue = 0;
+			// }
 			
-			this.hoverTime = 0;
-		}
+			// this.hoverTime = 0;
+		// }
 		
-		this.r = r;
-		this.l = l;
+		//this.r = r;
+		//this.l = l;
 	}
 	
 	draw()
@@ -688,11 +735,11 @@ class MenuBarItem
 		{
 			rotate(this.stride/2);
 			
-			stroke(RED);
-			line(0,0,0,this.shape.size.y);
+			//stroke(RED);
+			//line(0,0,0,this.shape.size.y);
 			
 			// let hovVal = (this.hoverTime/(TIME_THRESHOLD*2))*this.shape.lift;
-			if(this.hoverTime==0) image(this.img, this.shape.origin.x,this.shape.origin.y,this.shape.size.x,this.shape.size.y);
+			if(!this.selected) image(this.img, this.shape.origin.x,this.shape.origin.y,this.shape.size.x,this.shape.size.y);
 			else image(this.img, this.shape.origin.x,this.shape.origin.y-this.shape.lift,this.shape.size.x,this.shape.size.y);
 			rotate(this.stride/2);
 		}

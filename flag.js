@@ -118,7 +118,7 @@ class Flag
 	  Flag.rightFlag = new Flag(128, createVector(mainRegion.idealSize/2,mainRegion.idealSize/2), createVector(0,1), mainRegion.idealSize/2,mainRegion.idealSize/2, RED);
 	  Flag.leftFlag = new Flag(128, createVector(mainRegion.idealSize/2,mainRegion.idealSize/2), createVector(0,1), mainRegion.idealSize/2, mainRegion.idealSize/2, BLUE);
 	  Flag.graphics = createGraphics(mainRegion.idealSize, mainRegion.idealSize, WEBGL);
-	  //Flag.graphics.translate(-mainRegion.idealSize/2,-mainRegion.idealSize/2);
+	  Flag.graphics.translate(-mainRegion.idealSize/2,-mainRegion.idealSize/2);
 	  Flag.graphics.setAttributes('antialias', true);
 	  Flag.updateDimensions();
   }
