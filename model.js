@@ -306,48 +306,48 @@ var Model = (function() {
 		if(deltaFrame) next.values = [[-result[2],result[3]],[-result[0],result[1]],[-result[6],result[7]],[-result[4],result[5]]];
 		else next.values = [[result[0],result[1]],[result[2],result[3]],[result[4],result[5]],[result[6],result[7]]];
 		
-		pointHistory.unshift(next);
+		// pointHistory.unshift(next);
 		
-		let sumPoints = [[0,0],[0,0],[0,0],[0,0]];
-		let sumContribute = [0,0,0,0];
-		let cutoff;
+		// let sumPoints = [[0,0],[0,0],[0,0],[0,0]];
+		// let sumContribute = [0,0,0,0];
+		// let cutoff;
 		
-		for(let i = 0, l = pointHistory.length; i<l; i++)
-		{
-			p = pointHistory[i];
-			let time = millis()-p.time;
+		// for(let i = 0, l = pointHistory.length; i<l; i++)
+		// {
+			// p = pointHistory[i];
+			// let time = millis()-p.time;
 			
-			if(time>TIME_WINDOW)
-			{
-				cutoff = i;
-				break;
-			}
+			// if(time>TIME_WINDOW)
+			// {
+				// cutoff = i;
+				// break;
+			// }
 			
-			let urgency = 1-time/TIME_WINDOW; // could scale this nonlinearly
+			// let urgency = 1-time/TIME_WINDOW; // could scale this nonlinearly
 			
-			for(let k = 0; k<4; k++)
-			{
-				if(p.score[k]>0)
-				sumContribute[k] += urgency//*p.score[k]
-				sumPoints[k][0] += p.values[k][0]*sumContribute[k];
-				sumPoints[k][1] += p.values[k][1]*sumContribute[k];
-			}
-		}
+			// for(let k = 0; k<4; k++)
+			// {
+				// if(p.score[k]>0)
+				// sumContribute[k] += urgency//*p.score[k]
+				// sumPoints[k][0] += p.values[k][0]*sumContribute[k];
+				// sumPoints[k][1] += p.values[k][1]*sumContribute[k];
+			// }
+		// }
 		
-		if(cutoff) pointHistory.length=cutoff;
-		else cutoff = pointHistory.length;
+		// if(cutoff) pointHistory.length=cutoff;
+		// else cutoff = pointHistory.length;
 	
-		points = {}
+		// points = {}
 		
-		points['rightPos']		= createVector(sumPoints[0][0], sumPoints[0][1]).div(sumContribute[0]).div(cutoff)
-		points['leftPos']		= createVector(sumPoints[1][0], sumPoints[1][1]).div(sumContribute[1]).div(cutoff)
-		points['rightElbow']		= createVector(sumPoints[2][0], sumPoints[2][1]).div(sumContribute[2]).div(cutoff)
-		points['leftElbow']		= createVector(sumPoints[3][0], sumPoints[3][1]).div(sumContribute[3]).div(cutoff)
+		// points['rightPos']		= createVector(sumPoints[0][0], sumPoints[0][1]).div(sumContribute[0]).div(cutoff)
+		// points['leftPos']		= createVector(sumPoints[1][0], sumPoints[1][1]).div(sumContribute[1]).div(cutoff)
+		// points['rightElbow']		= createVector(sumPoints[2][0], sumPoints[2][1]).div(sumContribute[2]).div(cutoff)
+		// points['leftElbow']		= createVector(sumPoints[3][0], sumPoints[3][1]).div(sumContribute[3]).div(cutoff)
 		
-		// points['rightPos']		= createVector(next.values[0][0], next.values[0][1])
-		// points['leftPos']		= createVector(next.values[1][0], next.values[1][1])
-		// points['rightElbow']	= createVector(next.values[2][0], next.values[2][1])
-		// points['leftElbow']		= createVector(next.values[3][0], next.values[3][1])
+		points['rightPos']		= createVector(next.values[0][0], next.values[0][1])
+		points['leftPos']		= createVector(next.values[1][0], next.values[1][1])
+		points['rightElbow']	= createVector(next.values[2][0], next.values[2][1])
+		points['leftElbow']		= createVector(next.values[3][0], next.values[3][1])
 		
 		//points = pointvecs;
 		// deltaPoints = pointvecs;
