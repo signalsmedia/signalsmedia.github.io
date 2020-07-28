@@ -328,7 +328,7 @@ var Model = (function() {
 			for(let k = 0; k<4; k++)
 			{
 				if(p.score[k]>0)
-				sumContribute[k] += urgency*p.score[k]
+				sumContribute[k] += urgency//*p.score[k]
 				sumPoints[k][0] += p.values[k][0]*sumContribute[k];
 				sumPoints[k][1] += p.values[k][1]*sumContribute[k];
 			}
@@ -337,17 +337,17 @@ var Model = (function() {
 		if(cutoff) pointHistory.length=cutoff;
 		else cutoff = pointHistory.length;
 	
-		// points = {}
+		points = {}
 		
-		// points['rightPos']		= createVector(sumPoints[0][0], sumPoints[0][1]).div(sumContribute[0]).div(cutoff)
-		// points['leftPos']		= createVector(sumPoints[1][0], sumPoints[1][1]).div(sumContribute[1]).div(cutoff)
-		// points['rightElbow']		= createVector(sumPoints[2][0], sumPoints[2][1]).div(sumContribute[2]).div(cutoff)
-		// points['leftElbow']		= createVector(sumPoints[3][0], sumPoints[3][1]).div(sumContribute[3]).div(cutoff)
+		points['rightPos']		= createVector(sumPoints[0][0], sumPoints[0][1]).div(sumContribute[0]).div(cutoff)
+		points['leftPos']		= createVector(sumPoints[1][0], sumPoints[1][1]).div(sumContribute[1]).div(cutoff)
+		points['rightElbow']		= createVector(sumPoints[2][0], sumPoints[2][1]).div(sumContribute[2]).div(cutoff)
+		points['leftElbow']		= createVector(sumPoints[3][0], sumPoints[3][1]).div(sumContribute[3]).div(cutoff)
 		
-		points['rightPos']		= createVector(next.values[0][0], next.values[0][1])
-		points['leftPos']		= createVector(next.values[1][0], next.values[1][1])
-		points['rightElbow']	= createVector(next.values[2][0], next.values[2][1])
-		points['leftElbow']		= createVector(next.values[3][0], next.values[3][1])
+		// points['rightPos']		= createVector(next.values[0][0], next.values[0][1])
+		// points['leftPos']		= createVector(next.values[1][0], next.values[1][1])
+		// points['rightElbow']	= createVector(next.values[2][0], next.values[2][1])
+		// points['leftElbow']		= createVector(next.values[3][0], next.values[3][1])
 		
 		//points = pointvecs;
 		// deltaPoints = pointvecs;
