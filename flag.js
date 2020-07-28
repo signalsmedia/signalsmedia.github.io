@@ -318,7 +318,8 @@ class Flag
 
   update(origin, dir) 
   {
-    this.origin = p5.Vector.mult(origin, mainRegion.idealSize);
+    this.origin = p5.Vector.mult(origin, mainRegion.idealSize/2);
+	this.origin.add(mainRegion.idealSize/2,mainRegion.idealSize/2)
     this.dir = dir;
 	
 	//this.origin.sub(p5.Vector.mult(this.dir,this.poleSize/2))

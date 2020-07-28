@@ -8,13 +8,6 @@ var WebcamView = (function() {
 	var centerCut;
 	var resolution;
 	
-	
-	
-	// function privateMethod() 
-	// {
-	  
-	// }
-	
 	function setVideoReady()
 	{
 		videoReady = true;
@@ -25,7 +18,8 @@ var WebcamView = (function() {
 		circleMask.circle(video.width/2, video.height/2, resolution);
 		
 		streamRefreshMillis = (1/video.elt.srcObject.getVideoTracks()[0].getSettings().frameRate)*1000;
-		// Look into elt.timeupdate;
+		
+		//streamRefreshMillis = 2000
 		
 		if(!streamRefreshMillis) streamRefreshMillis = 1000/30;
 		
@@ -51,6 +45,7 @@ var WebcamView = (function() {
 			// mainRegion.innerSize = createVector(2*mainRegion.size.x/3,2*mainRegion.size.y/3);
 			// mainRegion.innerOrigin = createVector(mainRegion.origin.x+mainRegion.innerSize.x/4,mainRegion.origin.y+mainRegion.innerSize.y/4);
 		},
+		//debugImage: undefined,
 		preload: ()=> {
 			let constraints = {
 				video: {
@@ -68,7 +63,7 @@ var WebcamView = (function() {
 			video.hide();
 			video.elt.onloadeddata = setVideoReady;
 			//circleMask = loadImage('assets/circleMask.png');
-
+			//WebcamView.debugImage = createImg('debug.png','whatever').elt
 			//video.mask(circleMask);
 		},
 		init: ()=> {

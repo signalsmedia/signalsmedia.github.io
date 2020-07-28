@@ -76,9 +76,20 @@ var UI = (function() {
 			const points = Model.getPoints();
 			strokeWeight(22);
 			stroke(RED);
-			point(points['rightPos'].x*mainRegion.size.x+mainRegion.origin.x,points['rightPos'].y*mainRegion.size.y+mainRegion.origin.y);
+			point(points['rightPos'].x*mainRegion.size.x/2+mainRegion.center.x,points['rightPos'].y*mainRegion.size.y/2+mainRegion.center.y);
 			stroke(BLUE);
-			point(points['leftPos'].x*mainRegion.size.x+mainRegion.origin.x,points['leftPos'].y*mainRegion.size.y+mainRegion.origin.y);
+			point(points['leftPos'].x*mainRegion.size.x/2+mainRegion.center.x,points['leftPos'].y*mainRegion.size.y/2+mainRegion.center.y);
+		},
+		drawElbows: ()=>
+		{
+			if(drawStage!='flip') throw "drawElbows must be drawn within 'flip' drawing stage"
+			
+			const points = Model.getPoints();
+			strokeWeight(16);
+			stroke(RED);
+			point(points['rightElbow'].x*mainRegion.size.x/2+mainRegion.center.x,points['rightElbow'].y*mainRegion.size.y/2+mainRegion.center.y);
+			stroke(BLUE);
+			point(points['leftElbow'].x*mainRegion.size.x/2+mainRegion.center.x,points['leftElbow'].y*mainRegion.size.y/2+mainRegion.center.y);
 		},
 		// REDO THIS SHITTY SHIT BETTER.
 		drawPredictionSignal: (confirmLetter)=>

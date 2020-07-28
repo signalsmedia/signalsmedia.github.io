@@ -16,6 +16,8 @@ var Model = (function() {
 	var deltaFrame;
 	var deltaPoints;
 	
+	var pointHistory = [];
+	
 	var pred = ''
 	
 	var pendingSignal;
@@ -27,6 +29,36 @@ var Model = (function() {
 	var useAsync;
 	
 	var wait = 0;
+	
+	// var debugImage;
+	
+	const TIME_WINDOW = 500;
+	
+	const IMAGE_COORDS = createImageCoords();
+	const MASK = createMask();
+	const O_MASK = createOMask();
+
+	function createImageCoords()
+	{
+		const q = tf.linspace(-1,1,56);
+		const coords = tf.stack([tf.matMul(q.reshape([56, 1]), tf.ones([1, 56])),tf.matMul(tf.ones([56, 1]), q.reshape([1, 56]))],axis=-1);
+		return tf.expandDims(coords, 2);
+	}
+	
+	function createMask()
+	{
+		let m = tf.zeros([1,28,28,4]);
+		m = m.pad([[0,0],[14,14],[14,14],[0,0]],1);
+		return m
+	}
+	
+	function createOMask()
+	{
+		let m = tf.zeros([1,28,28,8])
+		m = m.pad([[0,0],[14,14],[14,14],[0,0]],1)
+		return m
+	}
+
 	
 	//var confirmSignalCallbacks = [];
 	//var updatePipeline = [decodeSignal, checkSignalHold, updateFlags];
@@ -104,7 +136,7 @@ var Model = (function() {
 		normIfNot();
 		
 		//Flag.update(points["rightPos"],rightDir,points["leftPos"],leftDir)
-		Flag.update(p5.Vector.add(points["rightPos"],points["rightElbow"]).div(2), rightDir, p5.Vector.add(points["leftPos"],points["leftElbow"]).div(2), leftDir)
+		Flag.update(points["rightPos"], rightDir, points["leftPos"], leftDir)
 		Flag.adaptiveResolution();
 	}
 	
@@ -189,15 +221,33 @@ var Model = (function() {
 		
 		return min(val/tol,1);
 	}
+	
+	function median(values)
+	{
+	  if(values.length ===0) return 0;
+
+	  values.sort(function(a,b){
+		return a-b;
+	  });
+
+	  var half = Math.floor(values.length / 2);
+
+	  if (values.length % 2)
+		return values[half];
+
+	  return (values[half - 1] + values[half]) / 2.0;
+	}
 
 	
 	function getKeypoints() {
 		//const img = getCanvasImg()
-		const result = tf.tidy(()=>
+		const [result, scores] = tf.tidy(()=>
 		{
 			let img = tf.browser.fromPixels(WebcamView.getVideo());
+			//let img = tf.browser.fromPixels(WebcamView.debugImage)
 			if(deltaFrame) img = img.reverse(1);
 			img = img.expandDims(0);
+			//img = img.reverse(-1);
 			//print(img.shape)
 			let xStart = WebcamView.getCenterCut().x;
 			let yStart = WebcamView.getCenterCut().y;
@@ -207,35 +257,101 @@ var Model = (function() {
 			//img = tf.image.resizeBilinear(img,[224,224]);
 			img = tf.image.resizeNearestNeighbor(img,[224,224]);
 			img = img.div(127.5).sub(1);
-			const points = tf.concat(tfModel.predict(img))
-			return points.dataSync()
+			const [o, h] = tfModel.predict(img);
+		
+			let narrowHeatmap = tf.sigmoid(h.slice([0,0,0,0],[-1,-1,-1,4]));
+			narrowHeatmap = tf.pad(narrowHeatmap,[[0,0],[14,14],[14,14],[0,0]]);
+			
+			let wideHeatmap = tf.sigmoid(h.slice([0,0,0,4],[-1,-1,-1,4]));
+			wideHeatmap = tf.image.resizeBilinear(wideHeatmap,[56,56]);
+			wideHeatmap = wideHeatmap.mul(MASK);
+			
+			let heatmap = tf.add(narrowHeatmap, wideHeatmap);
+			
+			let scores = tf.max(heatmap, axis=[1,2]);
+			heatmap = heatmap.divNoNan(tf.sum(heatmap,axis=[1,2],keepDims=true));
+			
+			let narrowOffset = o.slice([0,0,0,0],[-1,-1,-1,8])
+			narrowOffset = tf.pad(narrowOffset,[[0,0],[14,14],[14,14],[0,0]])
+			
+			let wideOffset = o.slice([0,0,0,8],[-1,-1,-1,8])
+			wideOffset = tf.image.resizeBilinear(wideOffset,[56,56])
+			wideOffset = wideOffset.mul(O_MASK)
+			
+			let offsets = tf.add(wideOffset,narrowOffset)
+			
+			let xOff = offsets.stridedSlice([0,0,0,0],[1,56,56,8],[1,1,1,2])
+			let yOff = offsets.stridedSlice([0,0,0,1],[1,56,56,8],[1,1,1,2])
+			
+			offset = tf.stack([tf.sum(heatmap.mul(xOff), axis=[1, 2]), tf.sum(heatmap.mul(yOff), axis=[1, 2])],axis=-1)
+			
+			heatmap = heatmap.expandDims(-1);
+			
+			let f = tf.sum(heatmap.mul(IMAGE_COORDS), axis=[1, 2]).add(offset.div(448)).reverse(-1);
+			
+			return [f.dataSync(), scores.dataSync()];
 		});
 		
-		let pointvecs = {}
-		if(deltaFrame)
+		
+		// debugImage.loadPixels()
+		// for (let i = 0; i < 4 * 56 * 56; i ++)
+		// {
+		  // debugImage.pixels[i*4] = int(debugTensor[i]*255)
+		  // debugImage.pixels[i*4+3] = 255
+		// }
+		// debugImage.updatePixels()
+		
+		let next = {score: scores, time:millis()}
+		
+		if(deltaFrame) next.values = [[-result[2],result[3]],[-result[0],result[1]],[-result[6],result[7]],[-result[4],result[5]]];
+		else next.values = [[result[0],result[1]],[result[2],result[3]],[result[4],result[5]],[result[6],result[7]]];
+		
+		pointHistory.unshift(next);
+		
+		let sumPoints = [[0,0],[0,0],[0,0],[0,0]];
+		let sumContribute = [0,0,0,0];
+		let cutoff;
+		
+		for(let i = 0, l = pointHistory.length; i<l; i++)
 		{
-			pointvecs['rightPos']	= createVector(1-result[2],result[3])
-			pointvecs['leftPos']	= createVector(1-result[0],result[1])
-			pointvecs['rightElbow']	= createVector(1-result[6],result[7])
-			pointvecs['leftElbow']	= createVector(1-result[4],result[5])
+			p = pointHistory[i];
+			let time = millis()-p.time;
+			
+			if(time>TIME_WINDOW)
+			{
+				cutoff = i;
+				break;
+			}
+			
+			let urgency = 1-time/TIME_WINDOW; // could scale this nonlinearly
+			
+			for(let k = 0; k<4; k++)
+			{
+				if(p.score[k]>0)
+				sumContribute[k] += urgency*p.score[k]
+				sumPoints[k][0] += p.values[k][0]*sumContribute[k];
+				sumPoints[k][1] += p.values[k][1]*sumContribute[k];
+			}
 		}
-		else
-		{
-			pointvecs['rightPos']	= createVector(result[0],result[1])
-			pointvecs['leftPos']	= createVector(result[2],result[3])
-			pointvecs['rightElbow']	= createVector(result[4],result[5])
-			pointvecs['leftElbow']	= createVector(result[6],result[7])
-		}
 		
-		points = {}
+		if(cutoff) pointHistory.length=cutoff;
+		else cutoff = pointHistory.length;
+	
+		// points = {}
 		
-		points['rightPos']		= p5.Vector.lerp(pointvecs['rightPos'],deltaPoints['rightPos'],0.5)
-		points['leftPos']		= p5.Vector.lerp(pointvecs['leftPos'],deltaPoints['leftPos'],0.5)
-		points['rightElbow']	= p5.Vector.lerp(pointvecs['rightElbow'],deltaPoints['rightElbow'],0.5)
-		points['leftElbow']	= p5.Vector.lerp(pointvecs['leftElbow'],deltaPoints['leftElbow'],0.5)
+		// points['rightPos']		= createVector(sumPoints[0][0], sumPoints[0][1]).div(sumContribute[0]).div(cutoff)
+		// points['leftPos']		= createVector(sumPoints[1][0], sumPoints[1][1]).div(sumContribute[1]).div(cutoff)
+		// points['rightElbow']		= createVector(sumPoints[2][0], sumPoints[2][1]).div(sumContribute[2]).div(cutoff)
+		// points['leftElbow']		= createVector(sumPoints[3][0], sumPoints[3][1]).div(sumContribute[3]).div(cutoff)
 		
-		deltaPoints = pointvecs;
-		deltaFrame = !deltaFrame;
+		points['rightPos']		= createVector(next.values[0][0], next.values[0][1])
+		points['leftPos']		= createVector(next.values[1][0], next.values[1][1])
+		points['rightElbow']	= createVector(next.values[2][0], next.values[2][1])
+		points['leftElbow']		= createVector(next.values[3][0], next.values[3][1])
+		
+		//points = pointvecs;
+		// deltaPoints = pointvecs;
+		//deltaFrame = !deltaFrame;
 		
 	}
 
@@ -273,15 +389,13 @@ var Model = (function() {
 
 	}
 	
-	function dummyInfer()
+	async function dummyInfer()
 	{
-		const result = tf.tidy(()=>
+		tf.tidy(()=>
 		{
 			let dummy = tf.zeros([1,224,224,3])
-			const points = tf.concat(tfModel.predict(dummy))
-			return points.dataSync()
+			tfModel.predict(dummy)
 		});
-		modelReady = true;
 	}
 
 	return {
@@ -319,23 +433,38 @@ var Model = (function() {
 			holdTime=-1;
 			matchTime=0;
 		},
+		disposeAll: ()=> {
+			IMAGE_COORDS.dispose();
+			MASK.dispose();
+			O_MASK.dispose();
+		},
+		// debug: ()=> {
+			// image(debugImage,mainRegion.origin.x,mainRegion.origin.y,mainRegion.size.x,mainRegion.size.y);
+		// },
 		init: async ()=> {
+			debugImage = createImage(56,56);
+			
 			if(LOCAL_DEBUG)
 			{
 				modelLoaded = true;
 				modelReady = true;
-				points = {'rightPos':createVector(0.3,0.5),'leftPos':createVector(0.7,0.5),'rightElbow':createVector(0.4, 0.5),'leftElbow':createVector(0.6, 0.5)}
+				points = {'rightPos':createVector(-0.4,0),'leftPos':createVector(0.4,0.0),'rightElbow':createVector(-0.2, 0.0),'leftElbow':createVector(0.2, 0.0)}
 			}
 			else
 			{
-				deltaPoints = {'rightPos':createVector(0.5,0.5),'leftPos':createVector(0.5,0.5),'rightElbow':createVector(0.5,0.5),'leftElbow':createVector(0.5,0.5)}
-				points = {'rightPos':createVector(0.5,0.5),'leftPos':createVector(0.5,0.5),'rightElbow':createVector(0.5,0.5),'leftElbow':createVector(0.5,0.5)}
+				deltaPoints = {'rightPos':createVector(0.0,0.0),'leftPos':createVector(0.0,0.0),'rightElbow':createVector(0.0,0.0),'leftElbow':createVector(0.0,0.0)}
+				points = {'rightPos':createVector(0.0,0.0),'leftPos':createVector(0.0,0.0),'rightElbow':createVector(0.0,0.0),'leftElbow':createVector(0.0,0.0)}
 				tf.setBackend('webgl');
+				//tf.ENV.set('WEBGL_PACK', false)
+				//tf.setBackend('cpu');
 				try 
 				{
-					tfModel = await tf.loadLayersModel('nn/model.json',strict=false);
+					//tfModel = await tf.loadLayersModel('nn/model.json',strict=false);
+					//tfModel = await tf.loadLayersModel('newmodel/model.json',strict=false);
+					tfModel = await tf.loadGraphModel('newmodelgraph/model.json',strict=false);
 					modelLoaded = true;
-					dummyInfer();
+					await dummyInfer();
+					modelReady = true;
 					print("Model Ready")
 				} catch (err) 
 				{

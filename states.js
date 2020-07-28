@@ -82,7 +82,8 @@ const IntroMenuState =
 	{
 		if(drawStage!='flip') throw "flipDraw must be called within 'flip' drawing stage";
 		UI.drawShapeMan(this.matchSignal.signal,this.matchSignal.score*this.matchSignal.score);
-		if(LOCAL_DEBUG) UI.drawHands();
+		UI.drawHands();
+		UI.drawElbows();
 	},
 	
 	postDraw: function()
@@ -433,7 +434,8 @@ const GameState =
 		if(paused && key==" ") 
 		{
 			togglePause();
-			nextState(MainMenuState)
+			//nextState(MainMenuState)
+			nextState(GameAMenuState)
 		}
 		
 		if(keyCode===ESCAPE)togglePause();

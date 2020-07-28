@@ -112,6 +112,10 @@ var tabPaused;
 // p5.disableFriendlyErrors = !LOCAL_DEBUG
 p5.disableFriendlyErrors = true;
 
+window.onbeforeunload = function (e) 
+{
+  Model.disposeAll();
+};
 
 var introDone = false;
 var preloadDone = false;
@@ -600,6 +604,7 @@ document.addEventListener('visibilitychange', function()
 		onResume();
 	}
 });
+
 
 // window.onbeforeunload = function (e) 
 // {
