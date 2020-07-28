@@ -82,8 +82,8 @@ const IntroMenuState =
 	{
 		if(drawStage!='flip') throw "flipDraw must be called within 'flip' drawing stage";
 		UI.drawShapeMan(this.matchSignal.signal,this.matchSignal.score*this.matchSignal.score);
-		UI.drawHands();
-		UI.drawElbows();
+		//UI.drawHands();
+		//UI.drawElbows();
 	},
 	
 	postDraw: function()
