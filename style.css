@@ -35,7 +35,7 @@ canvas:focus
 	font-family: dosis;
 	font-size: 1vw;
 	padding-left: 0.5vw;
-	/* padding-right: 0.5vw; */
+	padding-right: 0.5vw;
 	border-radius: 2.5vw;
 }
 
@@ -48,7 +48,7 @@ canvas:focus
 	text-align: left;
 	font-family: dosis;
 	font-size: 1vw;
-	/* padding-left: 0.5vw; */
+	padding-left: 0.5vw;
 	padding-right: 0.5vw;
 	border-radius: 2.5vw;
 }

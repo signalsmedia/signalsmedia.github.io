@@ -279,7 +279,7 @@ function draw()
 	}
 	if(!state.ignoreWebcam) WebcamView.draw();
 	if(state.flipDraw) state.flipDraw();
-	if(!state.ignoreFlags) Flag.draw();
+	if(!state.ignoreFlags && !paused) Flag.draw();
 	pop();
 	// Foreground //
 	drawStage = 'post';
@@ -289,8 +289,8 @@ function draw()
 	//if(!state.ignoreFlags) Flag.draw();
 
 	drawStage = 'overlay';
-	if(paused) UI.showPause();
-	else if(UI.hasMessage()) UI.showMessage();
+	if(paused) UI.showOptions();
+	else if(UI.helpVisible()) UI.showHelp();
 	
 	//Model.debug();
 	
@@ -399,22 +399,13 @@ function keyPressed()
 	if(state.onKeyPressed) state.onKeyPressed();
 }
 
-function togglePause()
+function pause(yesText, yesAction, noText, noAction)
 {
-	paused = !paused;
-	if(paused) onPause();
-	else onResume();
+	paused = true;
+	UI.setOptions({text:yesText, action:yesAction},{text:noText, action:noAction}, 'PAUSED');
 }
 
-function onPause()
-{
-	if(state.onPause) state.onPause();
-}
 
-function onResume()
-{
-	if(state.onResume) state.onResume();
-}
 
 function nextState(newState, params)
 {
@@ -498,7 +489,7 @@ function windowResized()
 	
 	textSize(windowWidth*0.01);
 	h = textWidth("Privacy Policy");
-	ppolSpan.position(windowWidth-h-windowWidth*0.01,windowHeight-windowWidth*0.02);
+	ppolSpan.position(windowWidth-h-windowWidth*0.015,windowHeight-windowWidth*0.02);
 	ppolSpan.show();
 	
 	gitSpan.position(windowWidth*0.01,windowHeight-windowWidth*0.02);
@@ -596,12 +587,10 @@ document.addEventListener('visibilitychange', function()
     if(document.hidden && !paused) 
 	{
 		tabPaused = true;
-		onPause();
 	}
 	else if(!document.hidden && !paused)
 	{
 		tabPaused = false;
-		onResume();
 	}
 });
 

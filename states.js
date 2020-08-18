@@ -327,14 +327,14 @@ const PlaygroundState =
 	onKeyPressed: function()
 	{
 		//inputDebug();
-		if(paused && key==" ") 
-		{
-			togglePause();
-			//nextState(MainMenuState)
-			nextState(GameAMenuState)
-		}
+		// if(paused && key==" ") 
+		// {
+			// togglePause();
+			// // // nextState(MainMenuState)
+			// nextState(GameAMenuState)
+		// }
 		
-		if(keyCode===ESCAPE)togglePause();
+		// if(keyCode===ESCAPE)togglePause();
 	},
 };
 
@@ -344,7 +344,8 @@ const GameState =
 	
 	interceptSpace: function()
 	{
-		nextState(GameAMenuState);
+		//nextState(GameAMenuState);
+		pause('QUIT', function(){nextState(GameAMenuState);}, 'RESUME', function(){});
 	},
 	
 	init: function()
@@ -372,7 +373,7 @@ const GameState =
 			this.game = new Game(this.lastLevel,4);
 		}
 		
-		this.sideGuides = new GuideCards(createVector(0, mainRegion.innerOrigin.y), createVector(mainRegion.innerOrigin.x-margin,mainRegion.innerOrigin.y+mainRegion.innerSize.y),0, "EXIT");
+		this.sideGuides = new GuideCards(createVector(0, mainRegion.innerOrigin.y), createVector(mainRegion.innerOrigin.x-margin,mainRegion.innerOrigin.y+mainRegion.innerSize.y),0, "PAUSE");
 		
 		this.game.onEnter();
 	},
@@ -431,14 +432,14 @@ const GameState =
 	
 	onKeyPressed: function()
 	{
-		if(paused && key==" ") 
-		{
-			togglePause();
-			//nextState(MainMenuState)
-			nextState(GameAMenuState)
-		}
+		// if(paused && key==" ") 
+		// {
+			// togglePause();
+			// //nextState(MainMenuState)
+			// nextState(GameAMenuState)
+		// }
 		
-		if(keyCode===ESCAPE)togglePause();
+		if(keyCode===ESCAPE) pause('QUIT', function(){nextState(GameAMenuState);}, 'RESUME', function(){});
 	},
 }
 
@@ -526,6 +527,7 @@ const DebugState =
 		if(key=='1') nextState(this.returnState);
 		// if(key=='3' && this.sideGuides) this.sideGuides.debugPadding = !this.sideGuides.debugPadding
 		inputDebug();
+		if(keyCode===ESCAPE) pause('QUIT', function(){nextState(GameAMenuState);}, 'RESUME', function(){});
 	},
 	
 	__debugRegions: function()

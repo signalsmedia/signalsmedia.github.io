@@ -59,6 +59,7 @@ class Ship
 			this.g.score += this.scoreValue;
 			//this.g.difficulty ...
 			this.g.pendRecover = true;
+			this.g.totalFinished++;
 		}
 	}
 	
@@ -78,7 +79,11 @@ class Ship
 		if(this.frontOfShip>=layer.rockPos.x) //&& !this.dead)
 		{
 			// doing it this way so we get the wobbly sinking effect
-			if(!this.dead) this.g.lives--;
+			if(!this.dead) 
+			{
+				this.g.lives--;
+				this.g.totalFinished++;
+			}
 				
 			this.dead = true;
 		}
@@ -193,6 +198,9 @@ class Game
 		this.score = 0;
 		this.spawnDelay = 0;
 		
+		this.totalSpawned = 0;
+		this.totalFinished = 0;
+		
 		this.timer = 0;
 		
 		this.waveScale = 0.25;
@@ -303,7 +311,7 @@ class Game
 	
 	update()
 	{
-		if(paused) return; 
+		if(paused && !this.gameOver) return; 
 		
 		this.timer+=deltaTime*this.waveScale;
 		
@@ -312,7 +320,6 @@ class Game
 		
 		this.difficulty = Math.min(this.difficulty+deltaTime*0.00001, this.endlessMode ? Game.BIGGESTWORD-Number.EPSILON*2 : 1);
 		this.waveScale = (this.difficulty*this.difficulty*this.difficulty*(this.endlessMode ? 0.4/(Game.BIGGESTWORD*Game.BIGGESTWORD*Game.BIGGESTWORD) : 0.4))+0.2;
-		
 		
 		
 		this.curDifficulty = 0;
@@ -329,7 +336,7 @@ class Game
 		
 		// this.curDifficulty<this.difficulty && 
 		
-		if(this.spawnDelay<=0 && !this.gameOver)
+		if(this.spawnDelay<=0 && !this.gameOver && (this.endlessMode || this.totalSpawned<Game.LEVELTOTAL))
 		{
 			this._addShip();
 			this.spawnDelay=10;
@@ -337,18 +344,35 @@ class Game
 		
 		if(this.lives>this.maxLives) this.lives = this.maxLives;
 		
-		if(this.lives<=0 && !this.gameOver) 
-		{
-			this.gameOver = true;
-			this.ships.forEach((shipLayer, l) => {shipLayer.forEach((ship, i, list)=>
-			{
-				ship.dead = true;
-			})});
-			
-			let timeout = millis()+4000;
-			UI.setMessage("GAME OVER", true, function(){return (millis()>=timeout)}, function(){nextState(GameAMenuState)})
-		}
+		if(this.lives<=0 && !this.gameOver) this._gameOver();
 		
+		if(this.totalFinished==Game.LEVELTOTAL && !this.levelComplete && !this.gameOver) this._levelWin();
+		
+	}
+	
+	_gameOver()
+	{
+		this.gameOver = true;
+		this.ships.forEach((shipLayer, l) => {shipLayer.forEach((ship, i, list)=>
+		{
+			ship.dead = true;
+		})});
+		
+		let timeout = millis()+4000;
+		
+		paused = true;
+		Game.globalD = this.wordDifficulty;
+		UI.setOptions({text:'QUIT', action:function(){nextState(GameAMenuState);}},{text:'RETRY', action:function(){nextState(GameState, Game.globalD)}}, 'GAME OVER');
+		//UI.setMessage("GAME OVER", true, function(){return (millis()>=timeout)}, function(){nextState(GameAMenuState)})
+	}
+	
+	_levelWin()
+	{
+		this.levelComplete = true;
+		paused = true;
+		Game.globalD = this.wordDifficulty;
+		if(this.wordDifficulty<Game.BIGGESTWORD-1)	UI.setOptions({text:'QUIT', action:function(){nextState(GameAMenuState);}},{text:'NEXT LEVEL', action:function(){nextState(GameState, Game.globalD+1)}}, 'LEVEL COMPLETE!');
+		else UI.setOptions({text:'QUIT', action:function(){nextState(GameAMenuState);}},{text:'ENDLESS MODE', action:function(){nextState(GameState, -1)}}, 'LEVEL COMPLETE!');
 	}
 	
 	_drawLives()
@@ -369,10 +393,10 @@ class Game
 		stroke(0)
 		strokeWeight(4*mainRegion.scale)
 		fill(WHITE)
-		text("SCORE",this.scoreOrigin.x,this.scoreOrigin.y)
+		text(this.endlessMode?"SCORE":"SHIPS REMAINING",this.scoreOrigin.x,this.scoreOrigin.y)
 		textSize(64*UI.textScale)
 		strokeWeight(6*mainRegion.scale)
-		text(this.score,this.scoreOrigin.x,this.scoreOrigin.y + 48*UI.textScale)
+		text(this.endlessMode?this.score:(Game.LEVELTOTAL-this.totalFinished),this.scoreOrigin.x,this.scoreOrigin.y + 48*UI.textScale)
 	}
 	
 	// TODO: just better.
@@ -396,6 +420,7 @@ class Game
 		if(rand) i = Math.floor(Math.random()*this.ships.length);
 		
 		this.ships[i].push(new Ship(this, word,s,i));
+		this.totalSpawned++;
 	}
 	
 	
@@ -591,6 +616,7 @@ Game.heartUnit;
 Game.rockUnits = [];
 Game.shipUnits = [];
 Game.BIGGESTWORD = 6;
+Game.LEVELTOTAL = 10;
 
 //Game.callCount = 0;
 

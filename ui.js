@@ -8,13 +8,22 @@ var UI = (function() {
 	var dialShape = {
 		radius: undefined,
 	}
+	
+	var optionYes = undefined;
+	var optionNo = undefined;
 
 	var message;
-	var darken;
-	var messageEndCriteria;
-	var messageEndCallback;
 	
-	var imgMessage = false;
+	
+	// var darken;
+	var endHelpCondition;
+	var endHelpAction;
+	var helpShow = false;
+	
+	// var imgMessage = false;
+	
+	// var OPTION_YES_IMG;
+	// var OPTION_NO_IMG;
 	
 	return  { 
 		// public interface variables
@@ -22,7 +31,8 @@ var UI = (function() {
 		
 		// public interface setters
 		// public interface getters
-		hasMessage: ()=>(message!==undefined),
+		// hasMessage: ()=>(message!==undefined),
+		helpVisible: ()=> (helpShow),
 		// public interface methods
 		
 		updateDimensions: ()=>{
@@ -94,6 +104,8 @@ var UI = (function() {
 		// REDO THIS SHITTY SHIT BETTER.
 		drawPredictionSignal: (confirmLetter)=>
 		{
+			if(paused) return;
+			
 			if(drawStage!='post') throw "drawPredictionSignal must be drawn within 'post' drawing stage"
 			const pred = Model.getPred();
 			const holdTime = Model.getHoldTime();
@@ -162,16 +174,15 @@ var UI = (function() {
 			textAlign(LEFT, TOP);
 			text(DEBUG_TEXT,0,0);
 		},
-		setMessage: (messageObj, darkenScreen, endCriteria, callback) =>
+		enableHelp: (messageObj,darkenScreen, condition, action)=>
 		{
+			helpShow = true;
 			message = messageObj;
-			if (Object.prototype.toString.call(message) === "[object String]" ) imgMessage = false;
-			else imgMessage = true;
 			darken = darkenScreen;
-			messageEndCriteria = endCriteria;
-			messageEndCallback = callback;
+			endHelpCondition = condition;
+			endHelpAction = action;
 		},
-		showMessage: ()=>
+		showHelp: ()=>
 		{
 			if(darken)
 			{
@@ -179,43 +190,165 @@ var UI = (function() {
 				rect(0,0,width,height);
 			}
 			
+			image(message.image, message.origin.x, message.origin.y, message.size.x, message.size.y)
 			
-			if(!imgMessage)
+			if(endHelpCondition())
 			{
-				textAlign(CENTER,CENTER)
-				textSize(72*UI.textScale);
-				stroke(BLACK)
-				fill(WHITE)
-				strokeWeight(10*UI.textScale)
-				text(message,mainRegion.center.x, mainRegion.center.y);
-			}
-			else image(message.image, message.origin.x, message.origin.y, message.size.x, message.size.y)
-			
-			if(messageEndCriteria())
-			{
-				messageEndCriteria = undefined;
+				endHelpCondition = undefined;
 				message = undefined;
-				if(messageEndCallback) messageEndCallback();
+				if(endHelpAction) endHelpAction();
+				endHelpAction = undefined;
+				helpShow = false;
 			}
+			
 		},
-		showPause: ()=>
+		// setPopup: (messageObj, conditionList, actionList, darkenScreen) =>
+		// {
+			// message = messageObj;
+			// if (Object.prototype.toString.call(message) === "[object String]" ) imgMessage = false;
+			// else imgMessage = true;
+			// darken = darkenScreen;
+			// popupEndConditions = conditionList;
+			// popupEndActions = actionList;
+			
+		// },
+		// setMessage: (messageObj, darkenScreen, endCriteria, callback) =>
+		// {
+			// message = messageObj;
+			// if (Object.prototype.toString.call(message) === "[object String]" ) imgMessage = false;
+			// else imgMessage = true;
+			// darken = darkenScreen;
+			// messageEndCriteria = endCriteria;
+			// messageEndCallback = callback;
+		// },
+		// showPopup: ()=>
+		// {
+			// if(darken)
+			// {
+				// fill(0,0,0,100);
+				// rect(0,0,width,height);
+			// }
+			
+			// if(!imgMessage)
+			// {
+				// textAlign(CENTER,CENTER)
+				// textSize(72*UI.textScale);
+				// stroke(BLACK)
+				// fill(WHITE)
+				// strokeWeight(10*UI.textScale)
+				// text(message,mainRegion.center.x, mainRegion.center.y);
+			// }
+			// else image(message.image, message.origin.x, message.origin.y, message.size.x, message.size.y)
+			
+			// for(let i=0, l = popupEndConditions.length; i<l; i++)
+			// {
+				// if(popupEndConditions[i]())
+				// {
+					// popupEndConditions = undefined;
+					// message = undefined;
+					// if(popupEndActions[i]) popupEndConditions[i]();
+					// break;
+				// }
+			// }
+			
+		// },
+		// showPause: ()=>
+		// {
+			// fill(0,0,0,100);
+			// rect(0,0,width,height);
+			
+			// stroke(BLACK)
+			// fill(WHITE)
+			
+			
+			// textAlign(CENTER,BOTTOM)
+			// textSize(72*UI.textScale);
+			// strokeWeight(10*UI.textScale);
+			// text("PAUSED",mainRegion.center.x, mainRegion.center.y);
+			
+			// textAlign(CENTER,TOP)
+			// textSize(32*UI.textScale);
+			// strokeWeight(6*UI.textScale);
+			// text("Press ESC to resume or SPACE to return to main menu",mainRegion.center.x, mainRegion.center.y)
+		// },
+		
+		setOptions: (yes, no, m)=>
 		{
+			optionYes = yes;
+			optionNo = no;
+			message = m
+		},
+		showOptions: ()=>
+		{
+			if(!optionNo || !optionYes) return;
+			
 			fill(0,0,0,100);
 			rect(0,0,width,height);
 			
+			textAlign(CENTER,CENTER)
+			textSize(72*UI.textScale);
 			stroke(BLACK)
 			fill(WHITE)
+			strokeWeight(10*UI.textScale)
+			text(message,windowWidth/2, windowHeight/3);
 			
+			let w = GuideCards.SINGLE_RATIO*windowHeight/4;
+			let y = windowHeight*0.45;
+			let h = windowHeight/4;
+			image(GuideCards.images[3], windowWidth/2-w-w/2, y, w, h)
+			image(GuideCards.images[29], windowWidth/2+w-w/2, y, w, h)
 			
 			textAlign(CENTER,BOTTOM)
-			textSize(72*UI.textScale);
-			strokeWeight(10*UI.textScale);
-			text("PAUSED",mainRegion.center.x, mainRegion.center.y);
+			fill(BLACK);
+			noStroke();
+			textSize(72);
+			a = Math.min((72*w*0.9)/textWidth(optionYes.text), h*0.25)
+			b = Math.min((72*w*0.9)/textWidth(optionNo.text), h*0.25)
 			
-			textAlign(CENTER,TOP)
-			textSize(32*UI.textScale);
-			strokeWeight(6*UI.textScale);
-			text("Press ESC to resume or SPACE to return to main menu",mainRegion.center.x, mainRegion.center.y)
+			textSize(a);
+			text(optionYes.text, windowWidth/2-w, y+h*0.95)
+			textSize(b);
+			text(optionNo.text, windowWidth/2+w, y+h*0.95)
+			
+			if(Model.getPred()=='C')
+			{
+				optionNo.holdTime = undefined;
+				
+				if(optionYes.holdTime) optionYes.holdTime += deltaTime;
+				else optionYes.holdTime = deltaTime;
+				
+				if(optionYes.holdTime>=TIME_THRESHOLD)
+				{
+					optionYes.action();
+					UI.endOptions();
+					return;
+				}
+			}
+			else if(Model.getPred()=='CANCEL')
+			{
+				optionYes.holdTime = undefined;
+				
+				if(optionNo.holdTime) optionNo.holdTime += deltaTime;
+				else optionNo.holdTime = deltaTime;
+				
+				if(optionNo.holdTime>=TIME_THRESHOLD)
+				{
+					optionNo.action();
+					UI.endOptions();
+					return;
+				}
+			}
+			else
+			{
+				optionYes.holdTime = undefined;
+				optionNo.holdTime = undefined;
+			}
+		},
+		endOptions: ()=>
+		{
+			paused = false;
+			optionNo = undefined;
+			optionYes = undefined;
 		}
 	};
 })();
@@ -475,6 +608,7 @@ class GuideCards
 
 GuideCards.W = 591;
 GuideCards.H = 709;
+GuideCards.SINGLE_RATIO = 591/709;
 GuideCards.RATIOS = [(3*591)/(5*709), 591/709, (5*591)/(3*709), (8*591)/(2*709)];
 GuideCards.COLS = [3,4,5,8];
 GuideCards.ROWS = [5,4,3,2];
@@ -642,7 +776,7 @@ class MenuBar
 	{
 		if(this.currentItem)
 		{
-			strokeWeight(4*mainRegion.scale)
+			strokeWeight(6*mainRegion.scale)
 			stroke(0);
 			fill(255);
 			textSize(48*UI.textScale)
@@ -665,7 +799,7 @@ class MenuBarItem
 		this.img = imgFile;
 		if(Object.prototype.toString.call(action) === "[object String]" || (typeof action === 'object' && action !== null))
 		{
-			this.action = UI.setMessage.bind(null, action, true, function(){return this.selected==false}.bind(this));
+			this.action = UI.enableHelp.bind(null, action, true, function(){return this.selected==false}.bind(this));
 		}
 		else this.action = action;
 		this.text = text;
