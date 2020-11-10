@@ -1,4 +1,3 @@
-// REDO THIS SHITTY SHIT BETTER.
 var UI = (function() {
 	
 	// private interface
